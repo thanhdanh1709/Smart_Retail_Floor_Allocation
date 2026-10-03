@@ -1,5 +1,5 @@
 experiment: E7
-time: '2026-10-03 20:04:15'
+time: '2026-10-03 20:32:27'
 python: 3.10.11
 platform: Windows-10-10.0.26200-SP0
 versions:
@@ -14,9 +14,9 @@ config:
     instance:
       kind: grid
       scale: medium
-    exposure_rounds: 2
+    exposure_rounds: 3
     damping: 0.5
-    n_customers: 800
-    n_rep: 2
+    n_customers: 3000
+    n_rep: 10
   alpha: 0.5
-lambda: 0.043619632720947266
+lambda: 0.04366159439086914

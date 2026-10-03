@@ -1,1 +1,6 @@
 === e5_simulation (full)
+2026-10-03 20:26:14  e5_simulation  rc=0  1290s
+=== e6_sensitivity (full)
+2026-10-03 20:32:19  e6_sensitivity  rc=0  365s
+=== e7_ablation (full)
+2026-10-03 20:34:26  e7_ablation  rc=0  126s
