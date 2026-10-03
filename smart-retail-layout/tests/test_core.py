@@ -171,6 +171,37 @@ def test_refine_keeps_feasibility_and_never_worsens(calibrated_small):
     assert all(b >= a - 1e-12 for a, b in zip(hist, hist[1:]))   # điểm hồ sơ không giảm
 
 
+def test_route_model_matches_simulation(calibrated_small):
+    from src import routing
+    inst, sim, _, calib = calibrated_small
+    rm = routing.RouteModel(inst, calib.lam, n_baskets=3000)
+    z1, z2 = rm.evaluate(inst.current)
+    k = sim.run(inst.current, S.SimConfig(n_customers=3000, lam=calib.lam, seed=5))["kpi"]
+    assert abs(z1 - k["distance_m"]) / k["distance_m"] < 0.03          # cùng quy tắc định tuyến
+    assert abs(z2 - k["impulse_revenue"]) / k["impulse_revenue"] < 0.15  # kỳ vọng ≈ trung bình mô phỏng
+    e = rm.exposure(inst.current)
+    assert e.min() >= 0 and e.max() <= 1
+    # ca thử hiển nhiên: nhóm hệ số cao nhất sang slot đông khách nhất -> Z2 tăng
+    cur = np.asarray(inst.current).copy()
+    inv = fastops.inverse(cur)
+    i = int(np.argmax(rm.coef))
+    k_ = next(k for k in np.argsort(-e) if inst.allowed[i, k] and inst.allowed[cur[k], inv[i]])
+    new = cur.copy()
+    new[inv[i]], new[k_] = new[k_], new[inv[i]]
+    if k_ != inv[i]:
+        assert rm.evaluate(new)[1] > z2
+
+
+def test_route_search_respects_relocation_budget(calibrated_small):
+    from src import pipeline as P, routing
+    inst, _, cal, calib = calibrated_small
+    rm = routing.RouteModel(inst, calib.lam, n_baskets=500)
+    obj = routing.RouteObjective(cal, rm, [inst.current])
+    for R in (2, 5):
+        p = P.route_search(obj, inst.current, 0.5, R=R, n_iter=300)
+        assert inst.moved(p) <= R and sorted(p) == list(range(inst.m))
+
+
 def test_select_respects_profile():
     import pandas as pd
     from src import pipeline as P

@@ -65,12 +65,15 @@ class CompatRepair(Repair):
 
 def nsga2(inst: Instance, pop_size: int = 100, n_gen: int = 300, seed: int = 0,
           time_limit: float | None = None, greedy_seeds: int = 11, ls_prob: float = 0.0,
-          verbose: bool = False) -> dict:
+          verbose: bool = False, seeds: list | None = None) -> dict:
     """Chạy NSGA-II (ls_prob > 0: biến thể lai có tìm kiếm cục bộ);
-    trả về tập nghiệm không trội khả thi (perm, Z1, Z2, F1, F2)."""
+    seeds: các hoán vị đưa thẳng vào quần thể ban đầu (vd. sơ đồ hiện trạng, tập Pareto mô hình QAP).
+    Trả về tập nghiệm không trội khả thi (perm, Z1, Z2, F1, F2)."""
     rng = np.random.default_rng(seed)
     prob = LayoutProblem(inst)
-    X0 = [ga.greedy_perm(inst, a) for a in np.linspace(0, 1, greedy_seeds)] if greedy_seeds else []
+    X0 = [np.asarray(s, dtype=np.int64) for s in (seeds or [])][:pop_size // 2]
+    if greedy_seeds:
+        X0 += [ga.greedy_perm(inst, a) for a in np.linspace(0, 1, greedy_seeds)]
     while len(X0) < pop_size:
         X0.append(random_perm(inst, rng))
     algo = NSGA2(pop_size=pop_size, sampling=np.array(X0[:pop_size]),

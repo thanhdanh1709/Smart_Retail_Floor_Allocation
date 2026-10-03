@@ -47,7 +47,8 @@ def main():
     inst = get_instance(spec)
     sim = S.Simulator(inst)
     pc = P.PipelineConfig(n_customers=min(2000, c["n_customers"]), nsga_time=20 if args.profile == "full" else 3,
-                          refine_evals=c["refine_evals"], final_rep=0, n_random_validity=5)
+                          refine_evals=c["refine_evals"], final_rep=0, n_random_validity=5,
+                          objective=c.get("objective", "route"))
     res = P.run_pipeline(inst, pc, sim)
     cal = res.cal
     plans = {"Hiện trạng": inst.current, **{p: res.plans[P.recommendation(res, p)] for p in P.PROFILES}}
@@ -55,10 +56,15 @@ def main():
     base = S.SimConfig(n_customers=c["n_customers"], lam=lam0)
     save_run_config("E6", {"e6": c, "alpha": alpha}, {"lambda": lam0})
 
+    rng = np.random.default_rng(11)
+    noise = [rng.uniform(0.7, 1.3, inst.n) for _ in range(3)]      # p_i lệch riêng từng nhóm ±30%
     factors = {
         "λ (hệ số)": [("×0.5", replace(base, lam=lam0 * 0.5)), ("×1", base), ("×1.5", replace(base, lam=lam0 * 1.5))],
         "p_i": [("−50%", replace(base, p_scale=0.5)), ("gốc", base), ("+50%", replace(base, p_scale=1.5))],
-        "chiến lược đi": [("tsp", base), ("chữ S", replace(base, strategy="snake")),
+        "p_i nhiễu theo nhóm ±30%": [("gốc", base)] + [(f"mẫu {i + 1}", replace(base, p_scale=z))
+                                                        for i, z in enumerate(noise)],
+        "chiến lược đi": [("tsp", base), ("gần nhất trước", replace(base, strategy="nn")),
+                          ("chữ S", replace(base, strategy="snake")),
                           ("hỗn hợp 70/30", replace(base, strategy="mixed"))],
         "tốc độ (m/s)": [("0.8", replace(base, speed=0.8)), ("1.0", base), ("1.2", replace(base, speed=1.2))],
     }
@@ -76,7 +82,7 @@ def main():
     # độ ổn định thứ hạng phương án (Kendall tau so với cấu hình gốc của từng yếu tố)
     stab = []
     for f, vals in factors.items():
-        ref_v = [v for v, sc in vals if sc == base][0]
+        ref_v = [v for v, sc in vals if sc is base][0]
         for kpi, asc in (("basket_value", False), ("distance_m", True)):
             ref = summ[(summ.factor == f) & (summ.value == ref_v)].set_index("plan")[kpi]
             for v, _ in vals:
@@ -111,15 +117,33 @@ def main():
         rs.loc[i, "impulse_change_pct"] = 100 * (k["impulse_revenue"] / k_cur["impulse_revenue"] - 1)
     rs.to_csv(d / "R_curve.csv", index=False)
     print(rs.round(4).to_string(index=False))
+    # đường cong R theo định tuyến: 2-swap từ hiện trạng trên Z1/Z2 định tuyến, dời ≤ R nhóm (hồ sơ Cân bằng)
+    rr = []
+    if isinstance(res.obj, P.routing.RouteObjective):
+        beta = P.PROFILES["Cân bằng"]["beta"]
+        for R in c["R_values"]:
+            perm = P.route_search(res.obj, inst.current, beta, R=R, n_iter=c.get("route_iters", 4000), seed=0)
+            k = P.simulate_mean(sim, perm, base, c["n_rep"], P.FINAL_SEED)
+            rr.append({"R": R, "moved": inst.moved(perm),
+                       "z1_route": res.obj.z1(perm), "z2_route": res.obj.z2(perm),
+                       "distance_change_pct": 100 * (k["distance_m"] / k_cur["distance_m"] - 1),
+                       "impulse_change_pct": 100 * (k["impulse_revenue"] / k_cur["impulse_revenue"] - 1),
+                       "score_balanced_sim": P.score(k, k_cur, beta)})
+        rr = pd.DataFrame(rr)
+        s_free = rr.loc[rr.R == -1, "score_balanced_sim"].iloc[0] if (rr.R == -1).any() else rr.score_balanced_sim.max()
+        rr["improvement_share_pct"] = 100 * rr.score_balanced_sim / s_free
+        rr.to_csv(d / "R_curve_route.csv", index=False)
+        print(rr.round(3).to_string(index=False))
     n = inst.n
-    rs_plot = rs.copy()
-    rs_plot["R_plot"] = rs_plot.R.replace(-1, n)
-    rs_plot = rs_plot.sort_values("R_plot")
-    fig, ax = plt.subplots(figsize=(5.5, 3.6))
-    ax.plot(rs_plot.R_plot, rs_plot.improvement_share_pct, "o-")
+    fig, ax = plt.subplots(figsize=(5.8, 3.6))
+    for df_, lab in ((rs, "mô hình QAP hiệu chỉnh (Z)"), (rr, "định tuyến (điểm Cân bằng mô phỏng)")):
+        if isinstance(df_, pd.DataFrame) and len(df_):
+            t = df_.assign(R_plot=df_.R.replace(-1, n)).sort_values("R_plot")
+            ax.plot(t.R_plot, t.improvement_share_pct, "o-", label=lab)
     ax.set_xlabel(f"R – số nhóm tối đa được dời (R = {n}: không giới hạn)")
     ax.set_ylabel("% mức cải thiện tối đa đạt được")
     ax.grid(alpha=.3)
+    ax.legend(fontsize=7)
     ax.set_title("Mức cải thiện theo số nhóm được dời", fontsize=9)
     viz.save(fig, FIGS / "e6_improvement_vs_R.png")
 

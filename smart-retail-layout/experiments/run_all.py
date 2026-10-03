@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ORDER = ["e1_qaplib", "e3_heuristics", "e4_pareto", "e5_simulation", "e6_sensitivity", "e7_ablation",
-         "e2_ga_vs_ilp"]   # E2 (ILP, lâu nhất) chạy cuối
+         "e2_ga_vs_ilp", "extra_stats"]   # E2 (ILP, lâu nhất) chạy gần cuối; extra_stats đọc kết quả E2, E3
 
 
 def main():

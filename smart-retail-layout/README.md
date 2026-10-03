@@ -14,7 +14,9 @@ Model         Z1 (quãng đường) + Z2 (giá trị) – HIỆU CHỈNH BẰNG 
               λ; e_k = tỷ lệ khách đi qua vùng tiếp xúc slot k; q_i = p_i(1 − f_i)(1 − e^(−λ t_i))
               → kiểm định: Spearman giữa Z và KPI mô phỏng
   ↓
-Optimization  NSGA-II lai + GA hai đầu → tập Pareto (ILP / GA đã kiểm chứng ở E1–E4)
+Optimization  NSGA-II lai + GA hai đầu trên mô hình QAP → tập Pareto (ILP / GA kiểm chứng ở E1–E4);
+              rồi NSGA-II trên Z1/Z2 THEO ĐỊNH TUYẾN (src/routing.py – e_k phụ thuộc sơ đồ),
+              quần thể ban đầu = tập Pareto QAP + sơ đồ hiện trạng
   ↓
 Simulation    mô phỏng tác tử sàng lọc MỌI ứng viên (số ngẫu nhiên chung) → chọn theo hồ sơ
               (Tiện lợi / Cân bằng / Giá trị) → tinh chỉnh 2-swap đánh giá bằng mô phỏng
@@ -75,9 +77,9 @@ Tham số thí nghiệm nằm trong `experiments/config.yaml`.
 | E2 | GA so với ILP (n = 8…20), dạng tuyến tính hóa (12) so với RLT | `e2_ga_vs_ilp.py` |
 | E3 | GA vs SA vs tabu vs tham lam vs ngẫu nhiên vs hiện trạng; Wilcoxon, Friedman + Nemenyi | `e3_heuristics.py` |
 | E4 | Tập Pareto: NSGA-II (thuần/lai) vs ε-ràng buộc vs quét α; hypervolume | `e4_pareto.py` |
-| E5 | Toàn pipeline trên 9 + 1 mặt bằng: kiểm định mô hình (gốc vs hiệu chỉnh); 3 hồ sơ × {theo mô hình, chọn bằng mô phỏng, tinh chỉnh} so với hiện trạng, 30 lần lặp độc lập | `e5_simulation.py` |
-| E6 | Độ nhạy của phương án khuyến nghị (λ, p, chiến lược đi, tốc độ); đường cong cải thiện theo R kèm KPI mô phỏng | `e6_sensitivity.py` |
-| E7 | Bóc tách khâu Model (e_k đều / hình học / mô phỏng, p hay q, lặp e_k) và tìm kiếm cục bộ của GA | `e7_ablation.py` |
+| E5 | Toàn pipeline trên 9 + 1 mặt bằng, 2 phiên bản Optimization (QAP hiệu chỉnh / định tuyến): kiểm định mô hình (gốc / hiệu chỉnh / định tuyến); 3 hồ sơ × {theo mô hình, chọn bằng mô phỏng, tinh chỉnh} so với hiện trạng, 30 lần lặp độc lập; mặt Pareto theo KPI mô phỏng | `e5_simulation.py` |
+| E6 | Độ nhạy của phương án khuyến nghị (λ, p ±50%, p nhiễu theo nhóm ±30%, 4 cách đi: tsp / gần nhất trước / chữ S / hỗn hợp, tốc độ); đường cong cải thiện theo R (mô hình QAP và định tuyến) kèm KPI mô phỏng | `e6_sensitivity.py` |
+| E7 | Bóc tách khâu Model (e_k đều / hình học / mô phỏng, p hay q, lặp e_k bằng MSA, định tuyến), độ tiếp xúc phụ thuộc sơ đồ, tìm kiếm cục bộ của GA | `e7_ablation.py` |
 
 ## Cấu trúc mã nguồn
 
@@ -93,7 +95,9 @@ Tham số thí nghiệm nằm trong `experiments/config.yaml`.
 | `src/moo.py` | NSGA-II (pymoo), biến thể lai, hypervolume, điểm gối, quét α (B5.5) |
 | `src/baselines.py` | Ngẫu nhiên, tham lam, SA, tabu (Taillard) (B5.6) |
 | `src/simulate.py` | Mô phỏng tác tử: lộ trình NN + 2-opt hoặc chữ S, dwell log-chuẩn, mua ngẫu hứng (14), KPI, bản đồ nhiệt, ùn tắc (B6) |
-| `src/pipeline.py` | Pipeline Data → Model → Optimization → Simulation → Decision: hiệu chỉnh mô hình, kiểm định, tập ứng viên, sàng lọc/chọn/tinh chỉnh bằng mô phỏng, đánh giá cuối |
+| `src/pipeline.py` | Pipeline Data → Model → Optimization → Simulation → Decision: hiệu chỉnh mô hình, kiểm định, tập ứng viên (QAP hoặc định tuyến), sàng lọc/chọn/tinh chỉnh bằng mô phỏng, `route_search` (dời ≤ R nhóm), đánh giá cuối |
+| `src/routing.py` | Z1/Z2 theo định tuyến (numba, ~1 ms/sơ đồ): mẫu giỏ cố định đi cửa vào → láng giềng gần nhất + 2-opt → thu ngân; Z2 = doanh thu ngẫu hứng kỳ vọng trên các slot thực sự nằm trên lộ trình |
+| `experiments/extra_stats.py` | Cận dưới ILP (E2, n = 20) và so sánh cặp Holm + A12 (E3) từ kết quả đã có |
 | `src/relocation.py` | Danh sách kệ cần dời theo thứ tự ưu tiên, kèm % cải thiện cộng dồn (B8.4) |
 | `src/qaplib.py`, `src/viz.py`, `src/solvers.py` | QAPLIB, vẽ hình, bảng payoff |
 

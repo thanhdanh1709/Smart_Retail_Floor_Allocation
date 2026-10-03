@@ -21,7 +21,7 @@ import streamlit as st
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src import baselines, ga, params, pipeline as P, relocation, simulate as S, solvers, viz  # noqa: E402
+from src import baselines, ga, params, pipeline as P, relocation, routing, simulate as S, solvers, viz  # noqa: E402
 from src.instance import make_instance  # noqa: E402
 
 st.set_page_config(page_title="Smart Retail Floor Allocation", layout="wide")
@@ -240,13 +240,22 @@ with tabs[1]:
 
 # --------------------------------------------------------------- ③ Tối ưu
 with tabs[2]:
+    objective = st.radio("Hàm mục tiêu", ["Định tuyến – độ tiếp xúc phụ thuộc sơ đồ (khuyến nghị)",
+                                          "Mô hình QAP hiệu chỉnh – độ tiếp xúc cố định"], horizontal=True)
     budget = st.slider("Ngân sách NSGA-II (giây)", 3, 120, 15)
     if st.button("Tạo tập phương án Pareto", type="primary"):
-        with st.spinner("NSGA-II lai + GA hai đầu đang chạy trên mô hình hiệu chỉnh…"):
-            put("front", P.candidates(cal, budget, seed=0))
+        with st.spinner("NSGA-II lai + GA hai đầu trên mô hình QAP hiệu chỉnh…"):
+            front = P.candidates(cal, budget, seed=0)
+            obj = cal
+        if objective.startswith("Định tuyến"):
+            with st.spinner("NSGA-II trên Z1/Z2 theo định tuyến (khởi tạo từ tập Pareto QAP + hiện trạng)…"):
+                rm = routing.RouteModel(inst, calib.lam, cfg.sigma, 1500)
+                front, obj = P.candidates_route(cal, rm, front, budget, seed=0)
+        put("front", front)
+        put("obj", obj)
         for s_ in ("screen", "picks", "final"):
             st.session_state.pop(s_, None)
-    front = stage("front")
+    front, obj = stage("front"), stage("obj")
     if front is not None:
         Z = front["Z"]
         figp = go.Figure()
@@ -255,7 +264,7 @@ with tabs[2]:
         for prof, i in front["model_picks"].items():
             figp.add_trace(go.Scatter(x=[Z[i, 0]], y=[Z[i, 1]], mode="markers", name=f"{prof} (theo mô hình)",
                                       marker=dict(size=11, symbol="circle-open")))
-        figp.add_trace(go.Scatter(x=[cal.z1(inst.current)], y=[cal.z2(inst.current)], mode="markers",
+        figp.add_trace(go.Scatter(x=[obj.z1(inst.current)], y=[obj.z2(inst.current)], mode="markers",
                                   name="hiện trạng", marker=dict(size=12, symbol="x", color="gray")))
         figp.update_layout(xaxis_title="Z1 – quãng đường kỳ vọng (thấp = tiện lợi)",
                            yaxis_title="Z2 – doanh thu ngẫu hứng kỳ vọng (cao = tốt)", height=420)
@@ -268,13 +277,14 @@ with tabs[3]:
     if front is None:
         st.info("Tạo tập Pareto ở thẻ ③ trước.")
     else:
+        cands = list(front["perms"]) + [np.asarray(inst.current)]       # hiện trạng cũng là một ứng viên
         if st.button("Mô phỏng sàng lọc mọi phương án", type="primary"):
             bar = st.progress(0.0)
             ref = P.simulate_mean(sim, inst.current, cfg, 1, P.SCREEN_SEED)
             rows = []
-            for i, p in enumerate(front["perms"]):
+            for i, p in enumerate(cands):
                 rows.append({"cand": i, **P.simulate_mean(sim, p, cfg, 1, P.SCREEN_SEED)})
-                bar.progress((i + 1) / len(front["perms"]))
+                bar.progress((i + 1) / len(cands))
             put("screen", {"df": pd.DataFrame(rows), "ref": ref})
             st.session_state.pop("picks", None)
         scr = stage("screen")
@@ -298,12 +308,12 @@ with tabs[3]:
                 picks = {}
                 for prof in P.PROFILES:
                     si = P.select(scr["df"], ref, prof)
-                    perm = front["perms"][si]
+                    perm = cands[si]
                     if n_ref:
                         with st.spinner(f"Tinh chỉnh hồ sơ {prof}…"):
                             perm, _ = P.refine(sim, cal, perm, ref, prof, cfg, n_ref, 1)
-                    picks[prof] = {"perm": perm,
-                                   "source": f"Pareto #{si}" + (f" + {n_ref} bước 2-swap" if n_ref else "")}
+                    lab = "hiện trạng" if si == len(cands) - 1 else f"Pareto #{si}"
+                    picks[prof] = {"perm": perm, "source": lab + (f" + {n_ref} bước 2-swap" if n_ref else "")}
                 put("picks", picks)
                 st.session_state.pop("final", None)
             picks = stage("picks")

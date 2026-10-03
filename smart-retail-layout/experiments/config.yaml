@@ -43,16 +43,21 @@ full:
     final_rep: 30
     target_impulse_items: 1.5
     nsga_time: {small: 10, medium: 20, large: 40, minimart: 20}
+    versions: [model, route]   # model: Z mô hình QAP hiệu chỉnh; route: Z theo định tuyến (Cách A)
   e6:
     instance: {kind: grid, scale: medium}
+    objective: route
     n_customers: 3000
     n_rep: 10
     refine_evals: 150
+    route_iters: 4000
     R_values: [0, 2, 4, 6, 8, 10, 15, 20, 30, -1]
   e7:
     instance: {kind: grid, scale: medium}
-    exposure_rounds: 3
-    damping: 0.5
+    exposure_rounds: 8
+    damping: msa               # a_t = 1/(t+1); hoặc một số cố định
+    tol: 0.01
+    route_iters: 20000
     n_customers: 3000
     n_rep: 10
 quick:
@@ -64,5 +69,7 @@ quick:
        eps_points: 5, nsga_time: 3, nsga_pop: 60, ls_prob: 0.1}
   e5: {n_customers: 600, screen_rep: 1, refine_evals: 10, n_random_validity: 10, final_customers: 600,
        final_rep: 3, target_impulse_items: 1.5, nsga_time: {small: 3, medium: 3, large: 3, minimart: 3}}
-  e6: {instance: {kind: grid, scale: medium}, n_customers: 800, n_rep: 2, refine_evals: 10, R_values: [0, 4, -1]}
-  e7: {instance: {kind: grid, scale: medium}, exposure_rounds: 2, damping: 0.5, n_customers: 800, n_rep: 2}
+  e6: {instance: {kind: grid, scale: medium}, objective: route, n_customers: 800, n_rep: 2, refine_evals: 10,
+       route_iters: 300, R_values: [0, 4, -1]}
+  e7: {instance: {kind: grid, scale: medium}, exposure_rounds: 2, damping: msa, tol: 0.01, route_iters: 500,
+       n_customers: 800, n_rep: 2}

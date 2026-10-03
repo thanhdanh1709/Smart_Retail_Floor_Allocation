@@ -26,7 +26,7 @@ from .instance import Instance
 class SimConfig:
     n_customers: int = 5000
     speed: float = 1.0               # m/s (thử 0,8–1,2)
-    strategy: str = "tsp"            # "tsp" | "snake" | "mixed"
+    strategy: str = "tsp"            # "tsp" | "nn" (gần nhất kế tiếp, không 2-opt) | "snake" | "mixed"
     mix_tsp: float = 0.7             # tỷ lệ khách đi kiểu tsp khi strategy = "mixed"
     lam: float = 0.05                # λ trong (14) – hiệu chỉnh bằng calibrate_lambda
     sigma: float = 0.6               # độ lệch log của thời gian dừng
@@ -60,8 +60,9 @@ class Simulator:
         self.n_baskets = B.shape[0]
 
     # -------------------------------------------------------------- routing
-    def _route(self, stops: list[int], tsp: bool) -> list[int]:
-        """Thứ tự ghé các điểm (chỉ số điểm mặt bằng) từ cửa vào, kết thúc ở thu ngân."""
+    def _route(self, stops: list[int], tsp: bool, two_opt: bool = True) -> list[int]:
+        """Thứ tự ghé các điểm (chỉ số điểm mặt bằng) từ cửa vào, kết thúc ở thu ngân.
+        tsp=False: theo đường rắn; two_opt=False: chỉ láng giềng gần nhất (đi tới nhóm gần nhất kế tiếp)."""
         if len(stops) <= 1:
             return list(stops)
         if not tsp:
@@ -74,7 +75,7 @@ class Simulator:
             order.append(j)
             left.remove(j)
             cur = j
-        improved = True                                      # 2-opt đường mở, đầu E cuối C
+        improved = two_opt                                   # 2-opt đường mở, đầu E cuối C
         seq = [self.E] + order
         while improved:
             improved = False
@@ -120,15 +121,16 @@ class Simulator:
         occ_nodes, occ_buckets = [], []
         arrivals = np.cumsum(rng.exponential(3600.0 / cfg.arrivals_per_hour, N))
         picks = rng.integers(self.n_baskets, size=N)
-        tsp_flags = (np.ones(N, bool) if cfg.strategy == "tsp" else
+        tsp_flags = (np.ones(N, bool) if cfg.strategy in ("tsp", "nn") else
                      np.zeros(N, bool) if cfg.strategy == "snake" else rng.random(N) < cfg.mix_tsp)
+        two_opt = cfg.strategy != "nn"
 
         for c in range(N):
             b = picks[c]
             L = self.indices[self.indptr[b]:self.indptr[b + 1]]
             Lset = set(int(x) for x in L)
             stops = [int(fp_slot_of_cat[j]) for j in L]
-            route = self._route(stops, bool(tsp_flags[c]))
+            route = self._route(stops, bool(tsp_flags[c]), two_opt)
             seq = [self.E] + route + [-1]
             nodes_all, exp_slots = [], set()
             d = 0.0

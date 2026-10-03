@@ -1,0 +1,25 @@
+factor,value,kpi,kendall_tau,best_plan
+λ (hệ số),×0.5,basket_value,1.0,Giá trị
+λ (hệ số),×1,basket_value,1.0,Giá trị
+λ (hệ số),×1.5,basket_value,1.0,Giá trị
+λ (hệ số),×0.5,distance_m,1.0,Tiện lợi
+λ (hệ số),×1,distance_m,1.0,Tiện lợi
+λ (hệ số),×1.5,distance_m,1.0,Tiện lợi
+p_i,−50%,basket_value,1.0,Giá trị
+p_i,gốc,basket_value,1.0,Giá trị
+p_i,+50%,basket_value,1.0,Giá trị
+p_i,−50%,distance_m,1.0,Tiện lợi
+p_i,gốc,distance_m,1.0,Tiện lợi
+p_i,+50%,distance_m,1.0,Tiện lợi
+chiến lược đi,tsp,basket_value,1.0,Giá trị
+chiến lược đi,chữ S,basket_value,0.6666666666666669,Giá trị
+chiến lược đi,hỗn hợp 70/30,basket_value,1.0,Giá trị
+chiến lược đi,tsp,distance_m,1.0,Tiện lợi
+chiến lược đi,chữ S,distance_m,0.0,Hiện trạng
+chiến lược đi,hỗn hợp 70/30,distance_m,1.0,Tiện lợi
+tốc độ (m/s),0.8,basket_value,1.0,Giá trị
+tốc độ (m/s),1.0,basket_value,1.0,Giá trị
+tốc độ (m/s),1.2,basket_value,1.0,Giá trị
+tốc độ (m/s),0.8,distance_m,1.0,Tiện lợi
+tốc độ (m/s),1.0,distance_m,1.0,Tiện lợi
+tốc độ (m/s),1.2,distance_m,1.0,Tiện lợi
