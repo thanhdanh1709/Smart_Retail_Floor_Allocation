@@ -1,0 +1,32 @@
+experiment: E5
+time: '2026-10-03 17:51:18'
+python: 3.10.11
+platform: Windows-10-10.0.26200-SP0
+versions:
+  numpy: 2.2.6
+  scipy: 1.15.3
+  pandas: 2.3.3
+  numba: 0.64.0
+  pymoo: 0.6.2
+  pulp: 3.3.2
+config:
+  e5:
+    n_customers: 5000
+    n_rep: 30
+    target_impulse_items: 1.5
+  nsga_time:
+    small: 10
+    medium: 20
+    large: 40
+    minimart: 20
+lambda:
+  grid_small: 0.26247453689575195
+  racetrack_small: 0.1709580421447754
+  free_small: 0.11487436294555664
+  grid_medium: 0.04366159439086914
+  racetrack_medium: 0.03821897506713867
+  free_medium: 0.037404537200927734
+  grid_large: 0.01494455337524414
+  racetrack_large: 0.012708187103271484
+  free_large: 0.01349020004272461
+  case_minimart_n30: 0.07074689865112305

@@ -118,6 +118,16 @@ def get_instance(spec: dict, payoff_method: str = "auto", **payoff_kw):
     return inst
 
 
+def calibrated_instance(spec: dict, n_customers: int = 2000, target_impulse_items: float = 1.5):
+    """Khâu Model của pipeline: (instance gốc, instance hiệu chỉnh bằng mô phỏng, Calibration, Simulator)."""
+    from src import pipeline, simulate as S
+    inst = get_instance(spec)
+    sim = S.Simulator(inst)
+    cal, calib = pipeline.calibrate_model(inst, sim, S.SimConfig(n_customers=n_customers),
+                                          target_impulse_items, n_customers)
+    return inst, cal, calib, sim
+
+
 def ensure_payoffs(specs: list[dict], method: str = "auto") -> None:
     for s in specs:
         t = time.time()

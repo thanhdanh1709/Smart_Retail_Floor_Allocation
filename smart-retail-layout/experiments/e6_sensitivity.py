@@ -1,5 +1,6 @@
-"""E6 – Phân tích độ nhạy (bộ vừa): λ, p_i ± 50%, chiến lược đi, tốc độ; và đường cong
-"mức cải thiện theo số nhóm được dời R" (ràng buộc (9))."""
+"""E6 – Phân tích độ nhạy (bộ vừa) của các phương án khuyến nghị bởi pipeline (src/pipeline.py):
+λ, p_i ± 50%, chiến lược đi, tốc độ; và đường cong "mức cải thiện theo số nhóm được dời R"
+(ràng buộc (9)) trên mô hình hiệu chỉnh, kèm KPI mô phỏng của phương án tốt nhất ở mỗi R."""
 from __future__ import annotations
 
 from dataclasses import replace
@@ -9,9 +10,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from experiments.common import (FIGS, cli, get_instance, load_config, out_dir, pareto_plans, pmap,
-                                save_run_config)
-from src import ga, simulate as S, viz
+from experiments.common import FIGS, cli, get_instance, load_config, out_dir, pmap, save_run_config
+from src import ga, pipeline as P, simulate as S, viz
 
 _CTX: dict = {}
 
@@ -30,13 +30,12 @@ def sim_task(t):
 
 
 def r_task(t):
-    spec, R, seed, alpha = t
-    base = get_instance(spec)
-    inst = base.copy_with(R=R)
-    inst.payoff = base.payoff
+    spec, e, q, payoff, R, seed, alpha = t
+    inst = get_instance(spec).copy_with(e=np.asarray(e), q=np.asarray(q), R=R)   # mô hình hiệu chỉnh
+    inst.payoff = payoff
     r = ga.run(inst, alpha, ga.GAConfig(seed=seed, stall_gens=100))
     return {"R": R, "seed": seed, "z": inst.z(r.perm, alpha), "z1": inst.z1(r.perm), "z2": inst.z2(r.perm),
-            "moved": inst.moved(r.perm), "feasible": inst.feasible(r.perm)}
+            "moved": inst.moved(r.perm), "feasible": inst.feasible(r.perm), "perm": r.perm.tolist()}
 
 
 def main():
@@ -47,11 +46,13 @@ def main():
     spec = c["instance"]
     inst = get_instance(spec)
     sim = S.Simulator(inst)
-    plans, _ = pareto_plans(inst, time_limit=20 if args.profile == "full" else 3, seed=0)
-    plans = {"Hiện trạng": inst.current, **plans}
-    base = S.SimConfig(n_customers=c["n_customers"])
-    lam0 = S.calibrate_lambda(sim, inst.current, 1.5, base, n_customers=min(2000, c["n_customers"]))
-    base = replace(base, lam=lam0)
+    pc = P.PipelineConfig(n_customers=min(2000, c["n_customers"]), nsga_time=20 if args.profile == "full" else 3,
+                          refine_evals=c["refine_evals"], final_rep=0, n_random_validity=5)
+    res = P.run_pipeline(inst, pc, sim)
+    cal = res.cal
+    plans = {"Hiện trạng": inst.current, **{p: res.plans[P.recommendation(res, p)] for p in P.PROFILES}}
+    lam0 = res.calib.lam
+    base = S.SimConfig(n_customers=c["n_customers"], lam=lam0)
     save_run_config("E6", {"e6": c, "alpha": alpha}, {"lambda": lam0})
 
     factors = {
@@ -88,15 +89,26 @@ def main():
     print(pd.DataFrame(stab).to_string(index=False))
 
     # đường cong cải thiện theo R
-    rt = pmap(r_task, [(spec, R, seed, alpha) for R in c["R_values"] for seed in range(min(cfg["n_runs"], 10))],
-              args.workers)
+    payoff = {k: v for k, v in cal.payoff.items()}
+    rt = pmap(r_task, [(spec, cal.e, cal.q, payoff, R, seed, alpha) for R in c["R_values"]
+                       for seed in range(min(cfg["n_runs"], 10))], args.workers)
     rdf = pd.DataFrame(rt)
-    rdf.to_csv(d / "R_runs.csv", index=False)
-    z_cur = inst.z(inst.current, alpha)
+    rdf.drop(columns="perm").to_csv(d / "R_runs.csv", index=False)
+    z_cur = cal.z(inst.current, alpha)
     rs = rdf.groupby("R").agg(z=("z", "min"), z_mean=("z", "mean"), moved=("moved", "mean"),
                               feasible=("feasible", "mean")).reset_index()
     z_free = rs.loc[rs.R == -1, "z"].iloc[0] if (rs.R == -1).any() else rs.z.min()
     rs["improvement_share_pct"] = 100 * (z_cur - rs.z) / (z_cur - z_free)
+    # KPI mô phỏng của phương án tốt nhất ở mỗi R (CRN, cùng hạt giống với hiện trạng)
+    k_cur = P.simulate_mean(sim, inst.current, base, c["n_rep"], P.FINAL_SEED)
+    for col in ("distance_change_pct", "impulse_change_pct"):
+        rs[col] = np.nan
+    for i, R in enumerate(rs.R):
+        sub = rdf[rdf.R == R]
+        best = np.asarray(sub.perm.iat[int(np.argmin(sub.z.values))])
+        k = P.simulate_mean(sim, best, base, c["n_rep"], P.FINAL_SEED)
+        rs.loc[i, "distance_change_pct"] = 100 * (k["distance_m"] / k_cur["distance_m"] - 1)
+        rs.loc[i, "impulse_change_pct"] = 100 * (k["impulse_revenue"] / k_cur["impulse_revenue"] - 1)
     rs.to_csv(d / "R_curve.csv", index=False)
     print(rs.round(4).to_string(index=False))
     n = inst.n

@@ -51,6 +51,7 @@ class Instance:
     k0: np.ndarray = None           # slot hiện tại của nhóm i (-1 với nhóm rỗng)
     R: int = -1                     # số nhóm tối đa được dời (-1: không giới hạn)
     e: np.ndarray = None            # mức tiếp xúc slot (m)
+    q: np.ndarray = None            # hệ số mua ngẫu hứng trong Z2 (m); None -> dùng p
     payoff: dict = field(default_factory=dict)
     fixed: dict = field(default_factory=dict)   # {nhóm: slot}
 
@@ -92,7 +93,7 @@ class Instance:
 
     @property
     def lin2(self) -> np.ndarray:
-        return np.outer(self.v * self.p, self.e)
+        return np.outer(self.v * (self.p if self.q is None else self.q), self.e)
 
     def z1(self, perm) -> float:
         perm = np.asarray(perm, dtype=np.int64)
@@ -163,7 +164,7 @@ class Instance:
     def copy_with(self, **kw) -> "Instance":
         d = {k: getattr(self, k) for k in ("name", "fp", "slot_idx", "meta", "W", "f", "p", "v",
                                            "baskets", "allowed", "sep_i", "sep_j", "sep_d", "k0",
-                                           "R", "e", "fixed")}
+                                           "R", "e", "q", "fixed")}
         d["payoff"] = {}
         d.update(kw)
         out = Instance(**d)

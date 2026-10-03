@@ -246,12 +246,17 @@ def calibrate_lambda(sim: Simulator, perm: np.ndarray, target_impulse_items: flo
     return (lo + hi) / 2
 
 
-def simulated_exposure(sim: Simulator, perm: np.ndarray, cfg: SimConfig) -> np.ndarray:
-    """Phương án (b) mục B2.4: tỷ lệ khách đi qua vùng tiếp xúc của từng slot (chuẩn hóa [0, 1]),
-    theo thứ tự slot của instance. Slot trống dùng lưu lượng trung bình của vùng tiếp xúc."""
+def exposure_rate(sim: Simulator, perm: np.ndarray, cfg: SimConfig) -> np.ndarray:
+    """Tỷ lệ khách đi qua vùng tiếp xúc của từng slot (xác suất, chưa chuẩn hóa), theo thứ tự
+    slot của instance. Slot trống dùng lưu lượng trung bình của vùng tiếp xúc."""
     res = sim.run(perm, cfg)
     rate = res["exposure_rate"]
     traffic = res["traffic"]
     zone_traffic = np.array([np.nanmean([traffic[r, c] for r, c in s.zone]) for s in sim.fp.slots])
     rate = np.where(rate > 0, rate, zone_traffic)
-    return minmax(rate[sim.inst.slot_idx])
+    return rate[sim.inst.slot_idx]
+
+
+def simulated_exposure(sim: Simulator, perm: np.ndarray, cfg: SimConfig) -> np.ndarray:
+    """Phương án (b) mục B2.4: exposure_rate chuẩn hóa min–max về [0, 1]."""
+    return minmax(exposure_rate(sim, perm, cfg))

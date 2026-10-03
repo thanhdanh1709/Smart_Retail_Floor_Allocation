@@ -1,0 +1,10 @@
+=== e4_pareto (full)
+2026-10-03 17:48:35  e4_pareto  rc=0  408s
+=== e5_simulation (full)
+2026-10-03 17:55:28  e5_simulation  rc=0  413s
+=== e6_sensitivity (full)
+2026-10-03 17:57:50  e6_sensitivity  rc=0  142s
+=== e7_ablation (full)
+2026-10-03 17:59:56  e7_ablation  rc=0  127s
+=== e2_ga_vs_ilp (full)
+2026-10-03 19:35:07  e2_ga_vs_ilp  rc=0  5711s

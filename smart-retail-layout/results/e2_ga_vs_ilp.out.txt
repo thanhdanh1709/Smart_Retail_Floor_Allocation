@@ -1,0 +1,32 @@
+n = 8: payoff exact = True
+    {'n': 8, 'alpha': 1.0, 'linearization': 'rlt', 'z_ilp': 119.0881, 'optimal': True, 'mip_gap': 0.0, 'n_x': 32, 'n_y': 400, 'n_cons': 240, 't_build': 0.0039, 't_solve': 0.0956}
+    {'n': 8, 'alpha': 1.0, 'linearization': 'basic', 'z_ilp': 119.0881, 'optimal': True, 'mip_gap': 0.0, 'n_x': 32, 'n_y': 400, 'n_cons': 416, 't_build': 0.0096, 't_solve': 0.7565}
+    {'n': 8, 'alpha': 0.5, 'linearization': 'rlt', 'z_ilp': 0.2729, 'optimal': True, 'mip_gap': 0.0, 'n_x': 32, 'n_y': 400, 'n_cons': 240, 't_build': 0.0553, 't_solve': 0.1123}
+    {'n': 8, 'alpha': 0.5, 'linearization': 'basic', 'z_ilp': 0.2729, 'optimal': True, 'mip_gap': 0.0, 'n_x': 32, 'n_y': 400, 'n_cons': 416, 't_build': 0.0083, 't_solve': 0.785}
+n = 10: payoff exact = True
+    {'n': 10, 'alpha': 1.0, 'linearization': 'rlt', 'z_ilp': 138.888, 'optimal': True, 'mip_gap': 0.0, 'n_x': 52, 'n_y': 1098, 'n_cons': 488, 't_build': 0.0249, 't_solve': 1.2961}
+    {'n': 10, 'alpha': 1.0, 'linearization': 'basic', 'z_ilp': 138.888, 'optimal': True, 'mip_gap': 0.0, 'n_x': 52, 'n_y': 1098, 'n_cons': 1118, 't_build': 0.0315, 't_solve': 12.3606}
+    {'n': 10, 'alpha': 0.5, 'linearization': 'rlt', 'z_ilp': 0.2694, 'optimal': True, 'mip_gap': 0.0, 'n_x': 52, 'n_y': 1098, 'n_cons': 488, 't_build': 0.0158, 't_solve': 0.7061}
+    {'n': 10, 'alpha': 0.5, 'linearization': 'basic', 'z_ilp': 0.2694, 'optimal': True, 'mip_gap': 0.0, 'n_x': 52, 'n_y': 1098, 'n_cons': 1118, 't_build': 0.0081, 't_solve': 12.2501}
+n = 12: payoff exact = True
+    {'n': 12, 'alpha': 1.0, 'linearization': 'rlt', 'z_ilp': 158.9804, 'optimal': True, 'mip_gap': 0.0, 'n_x': 74, 'n_y': 2307, 'n_cons': 838, 't_build': 0.0299, 't_solve': 8.0424}
+    {'n': 12, 'alpha': 1.0, 'linearization': 'basic', 'z_ilp': 158.9804, 'optimal': True, 'mip_gap': 0.0, 'n_x': 74, 'n_y': 2307, 'n_cons': 2331, 't_build': 0.0474, 't_solve': 104.9633}
+    {'n': 12, 'alpha': 0.5, 'linearization': 'rlt', 'z_ilp': 0.219, 'optimal': True, 'mip_gap': 0.0, 'n_x': 74, 'n_y': 2307, 'n_cons': 838, 't_build': 0.0278, 't_solve': 2.4186}
+    {'n': 12, 'alpha': 0.5, 'linearization': 'basic', 'z_ilp': 0.219, 'optimal': True, 'mip_gap': 0.0, 'n_x': 74, 'n_y': 2307, 'n_cons': 2331, 't_build': 0.0447, 't_solve': 50.3951}
+n = 15: payoff exact = True
+    {'n': 15, 'alpha': 1.0, 'linearization': 'rlt', 'z_ilp': 178.6916, 'optimal': True, 'mip_gap': 0.0, 'n_x': 117, 'n_y': 5958, 'n_cons': 1668, 't_build': 0.0696, 't_solve': 37.556}
+    {'n': 15, 'alpha': 0.5, 'linearization': 'rlt', 'z_ilp': 0.1019, 'optimal': True, 'mip_gap': 0.0, 'n_x': 117, 'n_y': 5958, 'n_cons': 1668, 't_build': 0.1111, 't_solve': 8.3426}
+n = 20: payoff exact = False
+    {'n': 20, 'alpha': 1.0, 'linearization': 'rlt', 'z_ilp': 211.344, 'optimal': False, 'mip_gap': 0.0804, 'n_x': 208, 'n_y': 19496, 'n_cons': 3992, 't_build': 0.2704, 't_solve': 1800.2207}
+    {'n': 20, 'alpha': 0.5, 'linearization': 'rlt', 'z_ilp': 0.2137, 'optimal': False, 'mip_gap': 0.132, 'n_x': 208, 'n_y': 19496, 'n_cons': 3992, 't_build': 0.2369, 't_solve': 1800.2098}
+ n  alpha  ilp_time  ilp_optimal  ga_gap_mean  ga_gap_max  ga_hit_rate  ga_time_mean  feasible  basic_time basic_optimal  basic_gap   speedup
+ 8    0.5    0.1123         True       0.0000      0.0000          1.0        0.6151       1.0      0.7850          True        0.0    0.1825
+ 8    1.0    0.0956         True      -0.0000      0.0000          1.0        0.6377       1.0      0.7565          True        0.0    0.1499
+10    0.5    0.7061         True       0.0000      0.0000          1.0        0.6425       1.0     12.2501          True        0.0    1.0990
+10    1.0    1.2961         True       0.0000      0.0000          1.0        0.6262       1.0     12.3606          True        0.0    2.0696
+12    0.5    2.4186         True       0.0000      0.0000          1.0        0.6987       1.0     50.3951          True        0.0    3.4614
+12    1.0    8.0424         True      -0.0000     -0.0000          1.0        0.6370       1.0    104.9633          True        0.0   12.6252
+15    0.5    8.3426         True       0.0000      0.0000          1.0        0.6737       1.0         NaN           NaN        NaN   12.3840
+15    1.0   37.5560         True       0.0000      0.0000          1.0        0.6644       1.0         NaN           NaN        NaN   56.5266
+20    0.5 1800.2098        False      -2.6987     -2.6987          1.0        0.7786       1.0         NaN           NaN        NaN 2312.1010
+20    1.0 1800.2207        False      -0.0632     -0.0632          1.0        0.8171       1.0         NaN           NaN        NaN 2203.0489

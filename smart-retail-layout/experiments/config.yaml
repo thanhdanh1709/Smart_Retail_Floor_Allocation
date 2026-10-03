@@ -34,20 +34,26 @@ full:
     nsga_time: 20
     nsga_pop: 100
     ls_prob: 0.1
-  e5:
-    n_customers: 5000
-    n_rep: 30
+  e5:                        # toàn pipeline (src/pipeline.py)
+    n_customers: 2000        # khách/lần mô phỏng khi hiệu chỉnh, sàng lọc, tinh chỉnh
+    screen_rep: 2
+    refine_evals: 150        # số bước 2-swap đánh giá bằng mô phỏng / hồ sơ
+    n_random_validity: 40    # số sơ đồ ngẫu nhiên dùng kiểm định mô hình
+    final_customers: 3000    # đánh giá cuối trên hạt giống độc lập
+    final_rep: 30
     target_impulse_items: 1.5
+    nsga_time: {small: 10, medium: 20, large: 40, minimart: 20}
   e6:
     instance: {kind: grid, scale: medium}
-    n_customers: 5000
+    n_customers: 3000
     n_rep: 10
+    refine_evals: 150
     R_values: [0, 2, 4, 6, 8, 10, 15, 20, 30, -1]
   e7:
     instance: {kind: grid, scale: medium}
     exposure_rounds: 3
     damping: 0.5
-    n_customers: 5000
+    n_customers: 3000
     n_rep: 10
 quick:
   n_runs: 3
@@ -56,6 +62,7 @@ quick:
   e3: {kinds: [grid], scales: [medium], budget: {medium: 2, large: 5}}
   e4: {small: {kind: grid, scale: small, n: 8, restrict: true}, medium: {kind: grid, scale: medium},
        eps_points: 5, nsga_time: 3, nsga_pop: 60, ls_prob: 0.1}
-  e5: {n_customers: 800, n_rep: 3, target_impulse_items: 1.5}
-  e6: {instance: {kind: grid, scale: medium}, n_customers: 800, n_rep: 2, R_values: [0, 4, -1]}
+  e5: {n_customers: 600, screen_rep: 1, refine_evals: 10, n_random_validity: 10, final_customers: 600,
+       final_rep: 3, target_impulse_items: 1.5, nsga_time: {small: 3, medium: 3, large: 3, minimart: 3}}
+  e6: {instance: {kind: grid, scale: medium}, n_customers: 800, n_rep: 2, refine_evals: 10, R_values: [0, 4, -1]}
   e7: {instance: {kind: grid, scale: medium}, exposure_rounds: 2, damping: 0.5, n_customers: 800, n_rep: 2}

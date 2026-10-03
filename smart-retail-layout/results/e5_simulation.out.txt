@@ -1,0 +1,41 @@
+[grid_small]  [Model] λ = 0.2625
+[racetrack_small]  [Model] λ = 0.1710
+[free_small]  [Model] λ = 0.1149
+[case_minimart_n30]  [Model] λ = 0.0707
+[grid_medium]  [Model] λ = 0.0437
+[racetrack_medium]  [Model] λ = 0.0382
+[free_medium]  [Model] λ = 0.0374
+[grid_small]  [Optimization] |Pareto| = 91
+[racetrack_small]  [Optimization] |Pareto| = 90
+[free_small]  [Optimization] |Pareto| = 85
+[case_minimart_n30]  [Optimization] |Pareto| = 95
+[grid_medium]  [Optimization] |Pareto| = 97
+[racetrack_medium]  [Optimization] |Pareto| = 95
+[free_large]  [Model] λ = 0.0135
+[free_medium]  [Optimization] |Pareto| = 98
+[grid_large]  [Model] λ = 0.0149
+[racetrack_large]  [Model] λ = 0.0127
+[free_large]  [Optimization] |Pareto| = 102
+[racetrack_large]  [Optimization] |Pareto| = 102
+[grid_large]  [Optimization] |Pareto| = 102
+[grid_small]  [Simulation] Tiện lợi: mô hình #0, mô phỏng #0
+[racetrack_small]  [Simulation] Tiện lợi: mô hình #0, mô phỏng #14
+[free_small]  [Simulation] Tiện lợi: mô hình #0, mô phỏng #6
+[grid_small]  [Simulation] Cân bằng: mô hình #36, mô phỏng #88
+[case_minimart_n30]  [Simulation] Tiện lợi: mô hình #0, mô phỏng #3
+[racetrack_small]  [Simulation] Cân bằng: mô hình #54, mô phỏng #42
+[grid_medium]  [Simulation] Tiện lợi: mô hình #0, mô phỏng #14
+[grid_small]  [Simulation] Giá trị: mô hình #90, mô phỏng #88
+[racetrack_medium]  [Simulation] Tiện lợi: mô hình #0, mô phỏng #11
+[free_small]  [Simulation] Cân bằng: mô hình #34, mô phỏng #83
+[racetrack_small]  [Simulation] Giá trị: mô hình #89, mô phỏng #88
+[free_medium]  [Simulation] Tiện lợi: mô hình #0, mô phỏng #26
+[case_minimart_n30]  [Simulation] Cân bằng: mô hình #51, mô phỏng #93
+[grid_medium]  [Simulation] Cân bằng: mô hình #35, mô phỏng #46
+[free_small]  [Simulation] Giá trị: mô hình #84, mô phỏng #84
+[racetrack_medium]  [Simulation] Cân bằng: mô hình #43, mô phỏng #71
+[case_minimart_n30]  [Simulation] Giá trị: mô hình #94, mô phỏng #93
+[grid_medium]  [Simulation] Giá trị: mô hình #96, mô phỏng #80
+[free_medium]  [Simulation] Cân bằng: mô hình #40, mô phỏng #74
+[racetrack_medium]  [Simulation] Giá trị: mô hình #94, mô phỏng #94
+[racetrack_large]  [Simulation] Tiện lợi: mô hình #0, mô phỏng #0

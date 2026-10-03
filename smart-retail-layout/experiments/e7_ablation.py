@@ -1,8 +1,10 @@
 """E7 – Bóc tách thành phần (bộ vừa):
-  (a) bỏ thông tin tiếp xúc/dwell (e_k đều) – mô hình suy biến thành chỉ tối thiểu quãng đường;
+  (a) khâu Model: e_k đều (bỏ tiếp xúc) / e_k hình học + p (mô hình gốc) / e_k mô phỏng + p /
+      e_k mô phỏng + q (mô hình hiệu chỉnh của pipeline) – tối ưu GA α rồi đánh giá bằng mô phỏng;
   (b) bỏ tìm kiếm cục bộ trong GA – cùng ngân sách thời gian, 30 lần chạy;
-  (c) lặp "tối ưu → mô phỏng → cập nhật e_k" 2–3 vòng (ghi chú mục B2.4), có giảm chấn:
-      e_{t+1} = (1 − β) e_t + β e_mô_phỏng(sơ đồ t), β = damping."""
+  (c) lặp "tối ưu → mô phỏng → cập nhật e_k" 2–3 vòng trên mô hình hiệu chỉnh, có giảm chấn:
+      e_{t+1} = (1 − β) e_t + β e_mô_phỏng(sơ đồ t), β = damping.
+Bóc tách khâu Simulation (chọn bằng mô phỏng, tinh chỉnh) nằm trong E5 (by_method.csv)."""
 from __future__ import annotations
 
 from dataclasses import replace
@@ -11,8 +13,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from experiments.common import cli, get_instance, load_config, out_dir, pmap, save_run_config
-from src import ga, simulate as S, solvers
+from experiments.common import calibrated_instance, cli, get_instance, load_config, out_dir, pmap, save_run_config
+from src import ga, pipeline as P, simulate as S, solvers
 
 
 def ls_task(t):
@@ -54,38 +56,43 @@ def main():
     ls_sum.to_csv(d / "ls_summary.csv", index=False)
     print(ls_sum.round(5).to_string(index=False))
 
-    # (a) + (c) các phương án theo nguồn e_k, đánh giá bằng mô phỏng và Z trên mô hình gốc
-    def optimize_with(e_vec):
-        i2 = inst.copy_with(e=np.asarray(e_vec, dtype=float))
-        solvers.compute_payoff(i2)
-        return ga.run(i2, alpha, gcfg).perm, i2
+    # (a) + (c) bóc tách khâu Model của pipeline: nguồn e_k và hệ số ngẫu hứng (p hay q),
+    # mỗi biến thể tối ưu bằng GA (α) rồi đánh giá bằng mô phỏng (hạt giống độc lập, CRN)
+    _, cal, calib, _ = calibrated_instance(spec, min(2000, c["n_customers"]))
+    q = calib.q
 
-    variants = {}
-    p_uniform, _ = optimize_with(np.full(inst.m, 0.5))
-    variants["e_k đều (bỏ tiếp xúc)"] = p_uniform
-    p_geom, _ = optimize_with(inst.e)
-    variants["e_k hình học (vòng 0)"] = p_geom
+    def optimize_with(e_vec, qv=None):
+        i2 = inst.copy_with(e=np.asarray(e_vec, dtype=float), q=qv)
+        solvers.compute_payoff(i2)
+        return ga.run(i2, alpha, gcfg).perm
+
+    variants = {"e_k đều (bỏ tiếp xúc)": optimize_with(np.full(inst.m, 0.5)),
+                "e_k hình học, p (mô hình gốc)": optimize_with(inst.e),
+                "e_k mô phỏng, p": optimize_with(calib.e),
+                "e_k mô phỏng, q (mô hình hiệu chỉnh)": optimize_with(calib.e, q)}
     it_rows = []
-    e_prev, p_prev = inst.e.copy(), p_geom
+    e_prev, p_prev = calib.e.copy(), variants["e_k mô phỏng, q (mô hình hiệu chỉnh)"]
     for rnd in range(1, c["exposure_rounds"] + 1):
-        e_new = (1 - c["damping"]) * e_prev + c["damping"] * S.simulated_exposure(sim, p_prev, scfg)
-        p_new, _ = optimize_with(e_new)
+        e_new = (1 - c["damping"]) * e_prev + c["damping"] * S.exposure_rate(sim, p_prev, scfg)
+        p_new = optimize_with(e_new, q)
         it_rows.append({"round": rnd, "e_change_L1": float(np.abs(e_new - e_prev).mean()),
                         "slots_changed": int((p_new != p_prev).sum()),
                         "corr_e": float(np.corrcoef(e_new, e_prev)[0, 1])})
-        variants[f"e_k mô phỏng (vòng {rnd})"] = p_new
+        variants[f"hiệu chỉnh + lặp e_k (vòng {rnd})"] = p_new
         e_prev, p_prev = e_new, p_new
     pd.DataFrame(it_rows).to_csv(d / "exposure_iterations.csv", index=False)
     print(pd.DataFrame(it_rows).round(4).to_string(index=False))
 
     rows = []
     variants = {"Hiện trạng": inst.current, **variants}
+    k_cur = P.simulate_mean(sim, inst.current, scfg, c["n_rep"], P.FINAL_SEED)
     for name, perm in variants.items():
-        rep = S.summarize(S.replicate(sim, perm, scfg, c["n_rep"]))
-        ev = inst.evaluate(perm, alpha)
-        row = {"variant": name, "z_model": ev["z"], "z1": ev["z1"], "z2_geom": ev["z2"]}
-        row.update({r.kpi: r["mean"] for _, r in rep.iterrows()})
-        rows.append(row)
+        k = P.simulate_mean(sim, perm, scfg, c["n_rep"], P.FINAL_SEED)
+        rows.append({"variant": name, "z_cal": cal.z(perm, alpha), "z1": cal.z1(perm), "z2_cal": cal.z2(perm),
+                     **k,
+                     "distance_change_pct": 100 * (k["distance_m"] / k_cur["distance_m"] - 1),
+                     "impulse_change_pct": 100 * (k["impulse_revenue"] / k_cur["impulse_revenue"] - 1),
+                     "score_balanced": P.score(k, k_cur, P.PROFILES["Cân bằng"]["beta"])})
     vdf = pd.DataFrame(rows)
     vdf.to_csv(d / "exposure_variants.csv", index=False)
     print(vdf.round(4).to_string(index=False))

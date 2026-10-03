@@ -5,11 +5,28 @@ cửa hàng bán lẻ số"**. Mã nguồn làm theo Phần B của đề cươn
 tham số từ dữ liệu giỏ hàng, mô hình quy hoạch nguyên song mục tiêu, GA/NSGA-II, mô phỏng tác
 tử, các thí nghiệm E1–E7 và dashboard hỗ trợ ra quyết định.
 
+Pipeline ra quyết định (`src/pipeline.py`, dashboard và E5–E7 dùng chung):
+
 ```
-dữ liệu giỏ hàng ─┐
-(Instacart)       ├─► tham số w, f, p, v ─┐
-mặt bằng (lưới) ──┴─► D, d_in, d_out, e ──┴─► ILP / GA / NSGA-II ─► mô phỏng tác tử ─► dashboard
+Data          giỏ hàng (Instacart / POS) → w, f, p, v ;  mặt bằng (lưới) → D, d_in, d_out
+  ↓
+Model         Z1 (quãng đường) + Z2 (giá trị) – HIỆU CHỈNH BẰNG MÔ PHỎNG trên sơ đồ hiện trạng:
+              λ; e_k = tỷ lệ khách đi qua vùng tiếp xúc slot k; q_i = p_i(1 − f_i)(1 − e^(−λ t_i))
+              → kiểm định: Spearman giữa Z và KPI mô phỏng
+  ↓
+Optimization  NSGA-II lai + GA hai đầu → tập Pareto (ILP / GA đã kiểm chứng ở E1–E4)
+  ↓
+Simulation    mô phỏng tác tử sàng lọc MỌI ứng viên (số ngẫu nhiên chung) → chọn theo hồ sơ
+              (Tiện lợi / Cân bằng / Giá trị) → tinh chỉnh 2-swap đánh giá bằng mô phỏng
+  ↓
+Decision tool đánh giá cuối trên hạt giống độc lập (KTC 95%, Wilcoxon) → phương án khuyến nghị,
+              danh sách kệ cần dời, xuất tệp (dashboard 5 thẻ ① … ⑤)
 ```
+
+Lý do có bước hiệu chỉnh: với e_k hình học và p_i gốc, Z2 gần như không tương quan với doanh thu
+ngẫu hứng trong mô phỏng (Spearman ≈ −0,1…0,3), nên phương án "max Z2" có thể bán kém hơn hiện trạng.
+Z2 gốc bỏ qua việc khách đã có món đó trong danh sách (hệ số 1 − f_i), thời gian dừng (1 − e^(−λ t_i))
+và việc lộ trình thực phụ thuộc sơ đồ. Kết quả trước khi hiệu chỉnh được lưu ở `results/_v1_model_goc/`.
 
 ## Cài đặt
 
@@ -58,9 +75,9 @@ Tham số thí nghiệm nằm trong `experiments/config.yaml`.
 | E2 | GA so với ILP (n = 8…20), dạng tuyến tính hóa (12) so với RLT | `e2_ga_vs_ilp.py` |
 | E3 | GA vs SA vs tabu vs tham lam vs ngẫu nhiên vs hiện trạng; Wilcoxon, Friedman + Nemenyi | `e3_heuristics.py` |
 | E4 | Tập Pareto: NSGA-II (thuần/lai) vs ε-ràng buộc vs quét α; hypervolume | `e4_pareto.py` |
-| E5 | Mô phỏng: hiện trạng vs 3 điểm Pareto trên 9 + 1 mặt bằng | `e5_simulation.py` |
-| E6 | Độ nhạy (λ, p, chiến lược đi, tốc độ) và đường cong cải thiện theo R | `e6_sensitivity.py` |
-| E7 | Bóc tách: bỏ e_k, bỏ tìm kiếm cục bộ, lặp cập nhật e_k | `e7_ablation.py` |
+| E5 | Toàn pipeline trên 9 + 1 mặt bằng: kiểm định mô hình (gốc vs hiệu chỉnh); 3 hồ sơ × {theo mô hình, chọn bằng mô phỏng, tinh chỉnh} so với hiện trạng, 30 lần lặp độc lập | `e5_simulation.py` |
+| E6 | Độ nhạy của phương án khuyến nghị (λ, p, chiến lược đi, tốc độ); đường cong cải thiện theo R kèm KPI mô phỏng | `e6_sensitivity.py` |
+| E7 | Bóc tách khâu Model (e_k đều / hình học / mô phỏng, p hay q, lặp e_k) và tìm kiếm cục bộ của GA | `e7_ablation.py` |
 
 ## Cấu trúc mã nguồn
 
@@ -76,6 +93,7 @@ Tham số thí nghiệm nằm trong `experiments/config.yaml`.
 | `src/moo.py` | NSGA-II (pymoo), biến thể lai, hypervolume, điểm gối, quét α (B5.5) |
 | `src/baselines.py` | Ngẫu nhiên, tham lam, SA, tabu (Taillard) (B5.6) |
 | `src/simulate.py` | Mô phỏng tác tử: lộ trình NN + 2-opt hoặc chữ S, dwell log-chuẩn, mua ngẫu hứng (14), KPI, bản đồ nhiệt, ùn tắc (B6) |
+| `src/pipeline.py` | Pipeline Data → Model → Optimization → Simulation → Decision: hiệu chỉnh mô hình, kiểm định, tập ứng viên, sàng lọc/chọn/tinh chỉnh bằng mô phỏng, đánh giá cuối |
 | `src/relocation.py` | Danh sách kệ cần dời theo thứ tự ưu tiên, kèm % cải thiện cộng dồn (B8.4) |
 | `src/qaplib.py`, `src/viz.py`, `src/solvers.py` | QAPLIB, vẽ hình, bảng payoff |
 
@@ -90,7 +108,14 @@ Tham số thí nghiệm nằm trong `experiments/config.yaml`.
   (giá trị giả định). Kết quả mô phỏng chỉ dùng để **so sánh tương đối** giữa các sơ đồ.
 - **Sơ đồ hiện trạng** của các mặt bằng mẫu được dựng theo kinh nghiệm: nhóm hàng xếp theo
   thứ tự ngành hàng dọc đường rắn từ cửa vào, hàng lạnh ở khu lạnh phía sau.
-- **Mức tiếp xúc `e_k`** phụ thuộc chính sơ đồ. E7 thử lặp "tối ưu → mô phỏng → cập nhật e_k"
-  với giảm chấn; nêu rõ đây là một hạn chế.
+- **Mức tiếp xúc `e_k`** phụ thuộc chính sơ đồ. Pipeline đo e_k trên luồng khách của sơ đồ hiện
+  trạng; khi sơ đồ đổi nhiều, e_k lệch – vì vậy khâu Simulation đánh giá lại mọi ứng viên thay vì
+  tin Z. E7 thử thêm lặp "tối ưu → mô phỏng → cập nhật e_k" với giảm chấn.
+- **Z1** là tổng khoảng cách theo cặp đồng mua, không phải độ dài lộ trình nhiều điểm dừng. Ở cửa
+  hàng nhỏ, quãng đường mô phỏng hầu như do hình dạng mặt bằng quyết định (các sơ đồ chênh ~3%)
+  nên Z1 phân biệt kém; ở cửa hàng vừa/lớn Z1 xếp hạng tốt. Dạng Z1 theo cạnh lộ trình
+  (trọng số 2/|giỏ|) đã thử và không cải thiện.
+- **Chọn và tinh chỉnh** dùng hạt giống sàng lọc cố định; mọi con số báo cáo lấy từ đánh giá cuối
+  trên hạt giống độc lập để tránh thiên lệch chọn lọc.
 - **Tuyến tính hóa RLT** (sum_l y_ijkl = x_ik) có cùng tập nghiệm nguyên với (12) nhưng nới lỏng
   LP chặt hơn nhiều; E2 so sánh trực tiếp hai dạng.

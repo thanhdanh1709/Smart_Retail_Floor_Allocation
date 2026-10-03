@@ -136,6 +136,52 @@ def test_simulation_reproducible_and_extremes():
     assert hi["kpi"]["impulse_items"] > a["kpi"]["impulse_items"]
 
 
+# ------------------------------------------------------ pipeline (src/pipeline.py)
+@pytest.fixture(scope="module")
+def calibrated_small():
+    from src import pipeline as P
+    inst = make_instance("grid", "small", n=12, restrict_slots=True)
+    sim = S.Simulator(inst)
+    cal, calib = P.calibrate_model(inst, sim, S.SimConfig(n_customers=300), n_customers=300,
+                                   payoff_method="heuristic", ga_cfg=ga.GAConfig(pop_size=20, max_gens=20))
+    return inst, sim, cal, calib
+
+
+def test_calibrated_model_coefficients(calibrated_small):
+    inst, _, cal, calib = calibrated_small
+    n = inst.n
+    assert calib.lam > 0
+    assert np.all(calib.e >= 0) and np.all(calib.e <= 1)          # tỷ lệ khách đi qua
+    assert np.all(calib.q[:n] <= inst.p[:n] + 1e-12) and np.all(calib.q[n:] == 0)
+    perm = inst.current
+    inv = fastops.inverse(np.asarray(perm, dtype=np.int64))
+    z2 = sum(inst.v[i] * calib.q[i] * calib.e[inv[i]] for i in range(n))
+    assert abs(cal.z2(perm) - z2) < 1e-9                          # Z2 = Σ v_i q_i e_k
+    assert inst.q is None and abs(inst.z2(perm) - cal.z2(perm)) > 0  # instance gốc không đổi
+
+
+def test_refine_keeps_feasibility_and_never_worsens(calibrated_small):
+    from src import pipeline as P
+    inst, sim, cal, calib = calibrated_small
+    cfg = calib.sim_cfg
+    ref = P.simulate_mean(sim, inst.current, cfg, 1, P.SCREEN_SEED)
+    assert cal.feasible(inst.current)
+    best, hist = P.refine(sim, cal, inst.current, ref, "Giá trị", cfg, n_evals=15, n_rep=1)
+    assert cal.feasible(best) and sorted(best) == list(range(cal.m))
+    assert all(b >= a - 1e-12 for a, b in zip(hist, hist[1:]))   # điểm hồ sơ không giảm
+
+
+def test_select_respects_profile():
+    import pandas as pd
+    from src import pipeline as P
+    ref = {"distance_m": 100.0, "impulse_revenue": 1.0}
+    df = pd.DataFrame({"cand": [0, 1, 2], "distance_m": [90.0, 99.0, 120.0],
+                       "impulse_revenue": [0.5, 1.05, 2.0]})
+    assert P.select(df, ref, "Tiện lợi") == 0
+    assert P.select(df, ref, "Giá trị") == 2
+    assert P.select(df, ref, "Cân bằng") == 1                     # chỉ #1 không xấu hơn hiện trạng
+
+
 # ---------------------------------------------------------------- QAPLIB
 def test_qaplib_value_and_ga():
     A, B = qaplib.read(qaplib.QAPLIB_DIR / "nug12.dat")

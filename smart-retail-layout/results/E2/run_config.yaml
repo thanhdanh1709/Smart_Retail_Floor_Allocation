@@ -1,0 +1,35 @@
+experiment: E2
+time: '2026-10-03 17:59:58'
+python: 3.10.11
+platform: Windows-10-10.0.26200-SP0
+versions:
+  numpy: 2.2.6
+  scipy: 1.15.3
+  pandas: 2.3.3
+  numba: 0.64.0
+  pymoo: 0.6.2
+  pulp: 3.3.2
+config:
+  e2:
+    sizes:
+    - 8
+    - 10
+    - 12
+    - 15
+    - 20
+    kind: grid
+    ilp_time: 1800
+    basic_max_n: 12
+    basic_time: 600
+  ga:
+    pop_size: 100
+    tournament_k: 3
+    crossover: ox
+    pc: 0.9
+    mutation: swap
+    pm: 0.2
+    elite: 2
+    ls_frac: 0.1
+    max_gens: 1000
+    stall_gens: 100
+  n_runs: 30
