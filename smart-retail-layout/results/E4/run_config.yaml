@@ -1,0 +1,26 @@
+experiment: E4
+time: '2026-10-03 15:12:45'
+python: 3.10.11
+platform: Windows-10-10.0.26200-SP0
+versions:
+  numpy: 2.2.6
+  scipy: 1.15.3
+  pandas: 2.3.3
+  numba: 0.64.0
+  pymoo: 0.6.2
+  pulp: 3.3.2
+config:
+  e4:
+    small:
+      kind: grid
+      scale: small
+      n: 12
+      restrict: true
+    medium:
+      kind: grid
+      scale: medium
+    eps_points: 15
+    nsga_time: 20
+    nsga_pop: 100
+    ls_prob: 0.1
+  n_runs: 30

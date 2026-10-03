@@ -1,0 +1,38 @@
+experiment: E1
+time: '2026-10-03 14:51:43'
+python: 3.10.11
+platform: Windows-10-10.0.26200-SP0
+versions:
+  numpy: 2.2.6
+  scipy: 1.15.3
+  pandas: 2.3.3
+  numba: 0.64.0
+  pymoo: 0.6.2
+  pulp: 3.3.2
+config:
+  e1:
+    instances:
+    - nug12
+    - chr12a
+    - had12
+    - tai12a
+    - esc16a
+    - had20
+    - nug20
+    - tai20a
+    - kra30a
+    - nug30
+    time_limit: 10
+    stall_gens: 300
+  ga:
+    pop_size: 100
+    tournament_k: 3
+    crossover: ox
+    pc: 0.9
+    mutation: swap
+    pm: 0.2
+    elite: 2
+    ls_frac: 0.1
+    max_gens: 1000
+    stall_gens: 100
+  n_runs: 30

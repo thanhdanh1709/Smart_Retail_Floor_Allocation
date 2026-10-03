@@ -1,0 +1,15 @@
+# Python 3.10+ – phiên bản đã dùng để chạy toàn bộ thí nghiệm (B8.5: tái lập kết quả)
+numpy==2.2.6
+scipy==1.15.3
+pandas==2.3.3
+numba==0.64.0
+pulp==3.3.2
+highspy==1.15.1
+pymoo==0.6.2
+scikit-posthocs==0.17.0
+matplotlib==3.8.4
+plotly==7.1.0
+streamlit==1.63.0
+PyYAML==6.0.3
+pytest==9.1.1
+kagglehub==1.0.0

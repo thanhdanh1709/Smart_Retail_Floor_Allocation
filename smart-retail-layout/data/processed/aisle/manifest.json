@@ -1,0 +1,25 @@
+{
+  "created": "2026-10-03 14:08:53",
+  "n_orders": 3214236,
+  "n_units": 132,
+  "sources": {
+    "products.csv": {
+      "bytes": 2166953
+    },
+    "order_products__prior.csv": {
+      "bytes": 577550706
+    },
+    "groups_vn.csv": {
+      "bytes": 1822
+    }
+  },
+  "outputs": {
+    "baskets.npz": "32a9b0a5253cc21e",
+    "categories.csv": "61eadc6e8e097fd4",
+    "f.npy": "01c86a9f9eb78e93",
+    "lift.npy": "3706a211c0256f3e",
+    "p.npy": "43cefe102c274a31",
+    "v.npy": "f014cddd79737af6",
+    "w.npy": "69bf8925c837f057"
+  }
+}

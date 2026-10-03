@@ -1,0 +1,61 @@
+# Cấu hình thí nghiệm E1–E7 (mục B7). "full" theo đề cương; "quick" để chạy thử nhanh.
+full:
+  n_runs: 30                 # số lần chạy độc lập mỗi cấu hình
+  alpha: 0.5                 # trọng số mục tiêu tiện lợi
+  ga:
+    pop_size: 100
+    tournament_k: 3
+    crossover: ox
+    pc: 0.9
+    mutation: swap
+    pm: 0.2
+    elite: 2
+    ls_frac: 0.1
+    max_gens: 1000
+    stall_gens: 100
+  e1:
+    instances: [nug12, chr12a, had12, tai12a, esc16a, had20, nug20, tai20a, kra30a, nug30]
+    time_limit: 10
+    stall_gens: 300
+  e2:
+    sizes: [8, 10, 12, 15, 20]
+    kind: grid
+    ilp_time: 1800
+    basic_max_n: 12          # dạng tuyến tính hóa (12) chỉ chạy tới n này
+    basic_time: 600
+  e3:
+    kinds: [grid, racetrack, free]
+    scales: [medium, large]
+    budget: {medium: 10, large: 30}   # giây/lần chạy, như nhau cho GA, SA, tabu
+  e4:
+    small: {kind: grid, scale: small, n: 12, restrict: true}
+    medium: {kind: grid, scale: medium}
+    eps_points: 15
+    nsga_time: 20
+    nsga_pop: 100
+    ls_prob: 0.1
+  e5:
+    n_customers: 5000
+    n_rep: 30
+    target_impulse_items: 1.5
+  e6:
+    instance: {kind: grid, scale: medium}
+    n_customers: 5000
+    n_rep: 10
+    R_values: [0, 2, 4, 6, 8, 10, 15, 20, 30, -1]
+  e7:
+    instance: {kind: grid, scale: medium}
+    exposure_rounds: 3
+    damping: 0.5
+    n_customers: 5000
+    n_rep: 10
+quick:
+  n_runs: 3
+  e1: {instances: [nug12, had12, nug20], time_limit: 3, stall_gens: 100}
+  e2: {sizes: [8, 10], kind: grid, ilp_time: 120, basic_max_n: 8, basic_time: 60}
+  e3: {kinds: [grid], scales: [medium], budget: {medium: 2, large: 5}}
+  e4: {small: {kind: grid, scale: small, n: 8, restrict: true}, medium: {kind: grid, scale: medium},
+       eps_points: 5, nsga_time: 3, nsga_pop: 60, ls_prob: 0.1}
+  e5: {n_customers: 800, n_rep: 3, target_impulse_items: 1.5}
+  e6: {instance: {kind: grid, scale: medium}, n_customers: 800, n_rep: 2, R_values: [0, 4, -1]}
+  e7: {instance: {kind: grid, scale: medium}, exposure_rounds: 2, damping: 0.5, n_customers: 800, n_rep: 2}

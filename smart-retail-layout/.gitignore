@@ -1,0 +1,8 @@
+# dữ liệu thô (Instacart ~700 MB) – tải lại bằng hướng dẫn trong README
+data/raw/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.nbi
+*.nbc
+.streamlit/secrets.toml

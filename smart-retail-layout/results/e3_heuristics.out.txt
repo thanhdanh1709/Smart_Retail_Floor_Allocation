@@ -1,0 +1,46 @@
+  payoff grid_medium (0.7s)
+  payoff racetrack_medium (0.6s)
+  payoff free_medium (0.8s)
+  payoff grid_large (18.2s)
+  payoff racetrack_large (18.7s)
+  payoff free_large (10.8s)
+        instance algo  z_mean   z_std  z_best  time_mean  feasible
+     grid_medium   GA 0.07038 0.00000 0.07038   10.00878       1.0
+     grid_medium   SA 0.07038 0.00000 0.07038   10.00320       1.0
+     grid_medium Tabu 0.07735 0.00588 0.07051   10.00728       1.0
+racetrack_medium   GA 0.14278 0.00000 0.14278   10.02007       1.0
+racetrack_medium   SA 0.14278 0.00000 0.14278   10.00354       1.0
+racetrack_medium Tabu 0.17960 0.01047 0.15191   10.00921       1.0
+     free_medium   GA 0.09471 0.00000 0.09471   10.03858       1.0
+     free_medium   SA 0.09471 0.00000 0.09471   10.00374       1.0
+     free_medium Tabu 0.13849 0.01596 0.09545   10.00780       1.0
+      grid_large   GA 0.07915 0.00019 0.07899   30.66981       1.0
+      grid_large   SA 0.08231 0.00218 0.07896   30.02830       1.0
+      grid_large Tabu 0.08686 0.00350 0.08077   30.01273       1.0
+ racetrack_large   GA 0.06976 0.00057 0.06873   30.35850       1.0
+ racetrack_large   SA 0.06872 0.00031 0.06849   30.01546       1.0
+ racetrack_large Tabu 0.07606 0.00437 0.07062   30.01524       1.0
+      free_large   GA 0.09693 0.00033 0.09650   30.49259       1.0
+      free_large   SA 0.09694 0.00067 0.09640   30.01624       1.0
+      free_large Tabu 0.10350 0.00392 0.09912   30.01403       1.0
+        instance comparison  median_GA  median_other  statistic  p_value          winner
+     grid_medium   GA vs SA    0.07038       0.07038    0.00000  1.00000 không khác biệt
+     grid_medium GA vs Tabu    0.07038       0.07515   -6.65299  0.00000              GA
+racetrack_medium   GA vs SA    0.14278       0.14278    0.00000  1.00000 không khác biệt
+racetrack_medium GA vs Tabu    0.14278       0.18001   -6.65299  0.00000              GA
+     free_medium   GA vs SA    0.09471       0.09471    0.00000  1.00000 không khác biệt
+     free_medium GA vs Tabu    0.09471       0.14518   -6.65299  0.00000              GA
+      grid_large   GA vs SA    0.07904       0.08354   -5.14498  0.00000              GA
+      grid_large GA vs Tabu    0.07904       0.08726   -6.65299  0.00000              GA
+ racetrack_large   GA vs SA    0.06964       0.06865    6.15032  0.00000              SA
+ racetrack_large GA vs Tabu    0.06964       0.07438   -6.62342  0.00000              GA
+      free_large   GA vs SA    0.09684       0.09666    2.24723  0.02463              SA
+      free_large GA vs Tabu    0.09684       0.10269   -6.65299  0.00000              GA
+Friedman chi2 = 22.325, p = 0.00017
+algo
+GA            1.416667
+SA            1.583333
+Tabu          3.000000
+Tham lam      4.333333
+Hiện trạng    4.666667
+dtype: float64

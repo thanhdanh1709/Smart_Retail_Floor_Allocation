@@ -1,0 +1,8 @@
+Friedman chi2 = 22.3248, p = 0.000173
+Hạng trung bình:
+algo
+GA            1.416667
+SA            1.583333
+Tabu          3.000000
+Tham lam      4.333333
+Hiện trạng    4.666667
