@@ -37,3 +37,204 @@
 [case_minimart_n30|model]  [Simulation] Giá trị: mô hình #95, mô phỏng hiện trạng
 [free_medium|model]  [Simulation] Cân bằng: mô hình #39, mô phỏng hiện trạng
 [grid_small|route]  [Model] λ = 0.2625
+[grid_medium|model]  [Simulation] Giá trị: mô hình #97, mô phỏng Pareto #81
+[grid_small|route]  [Optimization:route] |Pareto| = 48
+[racetrack_medium|model]  [Simulation] Giá trị: mô hình #94, mô phỏng Pareto #94
+[racetrack_small|route]  [Model] λ = 0.1710
+[racetrack_large|model]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #0
+[grid_large|model]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #0
+[racetrack_small|route]  [Optimization:route] |Pareto| = 26
+[free_large|model]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #0
+[free_small|route]  [Model] λ = 0.1149
+[free_small|route]  [Optimization:route] |Pareto| = 33
+[grid_small|route]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #0
+[free_medium|model]  [Simulation] Giá trị: mô hình #97, mô phỏng Pareto #74
+[grid_small|route]  [Simulation] Cân bằng: mô hình #19, mô phỏng Pareto #19
+[racetrack_small|route]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #0
+[grid_medium|route]  [Model] λ = 0.0437
+[grid_small|route]  [Simulation] Giá trị: mô hình #47, mô phỏng Pareto #46
+[grid_medium|route]  [Optimization:route] |Pareto| = 31
+[free_small|route]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #0
+[racetrack_large|model]  [Simulation] Cân bằng: mô hình #32, mô phỏng Pareto #89
+[grid_large|model]  [Simulation] Cân bằng: mô hình #33, mô phỏng Pareto #63
+[racetrack_small|route]  [Simulation] Cân bằng: mô hình #20, mô phỏng Pareto #19
+[racetrack_medium|route]  [Model] λ = 0.0382
+[free_large|model]  [Simulation] Cân bằng: mô hình #36, mô phỏng Pareto #86
+[racetrack_medium|route]  [Optimization:route] |Pareto| = 30
+[free_small|route]  [Simulation] Cân bằng: mô hình #20, mô phỏng Pareto #19
+[racetrack_small|route]  [Simulation] Giá trị: mô hình #25, mô phỏng Pareto #25
+[free_medium|route]  [Model] λ = 0.0374
+[free_medium|route]  [Optimization:route] |Pareto| = 39
+[free_small|route]  [Simulation] Giá trị: mô hình #32, mô phỏng Pareto #26
+[grid_medium|route]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #0
+[racetrack_large|model]  [Simulation] Giá trị: mô hình #101, mô phỏng Pareto #101
+[grid_large|route]  [Model] λ = 0.0149
+[grid_large|model]  [Simulation] Giá trị: mô hình #101, mô phỏng Pareto #101
+[racetrack_medium|route]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #1
+[racetrack_large|route]  [Model] λ = 0.0127
+[grid_medium|route]  [Simulation] Cân bằng: mô hình #20, mô phỏng Pareto #18
+[free_large|model]  [Simulation] Giá trị: mô hình #101, mô phỏng Pareto #101
+[free_large|route]  [Model] λ = 0.0135
+[grid_large|route]  [Optimization:route] |Pareto| = 69
+[free_medium|route]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #0
+[racetrack_large|route]  [Optimization:route] |Pareto| = 61
+[racetrack_medium|route]  [Simulation] Cân bằng: mô hình #6, mô phỏng Pareto #18
+[grid_medium|route]  [Simulation] Giá trị: mô hình #30, mô phỏng Pareto #28
+[case_minimart_n30|route]  [Model] λ = 0.0707
+[case_minimart_n30|route]  [Optimization:route] |Pareto| = 35
+[free_large|route]  [Optimization:route] |Pareto| = 60
+[free_medium|route]  [Simulation] Cân bằng: mô hình #13, mô phỏng Pareto #24
+[racetrack_medium|route]  [Simulation] Giá trị: mô hình #29, mô phỏng Pareto #29
+[case_minimart_n30|route]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #0
+[free_medium|route]  [Simulation] Giá trị: mô hình #38, mô phỏng Pareto #38
+[case_minimart_n30|route]  [Simulation] Cân bằng: mô hình #20, mô phỏng Pareto #21
+[grid_large|route]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #0
+[racetrack_large|route]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #2
+[case_minimart_n30|route]  [Simulation] Giá trị: mô hình #34, mô phỏng Pareto #31
+[free_large|route]  [Simulation] Tiện lợi: mô hình #0, mô phỏng Pareto #2
+[grid_large|route]  [Simulation] Cân bằng: mô hình #47, mô phỏng Pareto #49
+[racetrack_large|route]  [Simulation] Cân bằng: mô hình #30, mô phỏng Pareto #59
+[free_large|route]  [Simulation] Cân bằng: mô hình #29, mô phỏng Pareto #54
+[racetrack_large|route]  [Simulation] Giá trị: mô hình #60, mô phỏng Pareto #60
+[grid_large|route]  [Simulation] Giá trị: mô hình #68, mô phỏng Pareto #67
+[free_large|route]  [Simulation] Giá trị: mô hình #59, mô phỏng Pareto #59
+
+== Kiểm định mô hình (Spearman, trung bình 10 bộ)
+                                                        rho_Z1_distance  rho_Z2_impulse
+version layouts             model                                                      
+model   Pareto              gốc (e hình học, p)                   0.916          -0.247
+                            hiệu chỉnh (e mô phỏng, q)            0.916           0.921
+        Pareto + ngẫu nhiên gốc (e hình học, p)                   0.917          -0.279
+                            hiệu chỉnh (e mô phỏng, q)            0.917           0.312
+route   Pareto              gốc (e hình học, p)                   0.632           0.284
+                            hiệu chỉnh (e mô phỏng, q)            0.632           0.379
+                            định tuyến (Cách A)                   0.996           0.994
+        Pareto + ngẫu nhiên gốc (e hình học, p)                   0.575           0.161
+                            hiệu chỉnh (e mô phỏng, q)            0.575           0.404
+                            định tuyến (Cách A)                   0.996           0.993
+
+== Trung bình 10 bộ theo phiên bản × hồ sơ × cách chọn (số bộ trội hơn hiện trạng; số bộ DT giảm có ý nghĩa)
+kpi                                  basket_value  distance_m  impulse_revenue  n_dominate_current  n_worse_revenue
+version profile  method                                                                                            
+model   Cân bằng chọn bằng mô phỏng          2.60       -1.93            12.51                   5                0
+                 theo mô hình               -2.16       -4.98            -9.76                   3                7
+                 tinh chỉnh                  6.07       -0.94            28.81                  10                0
+        Giá trị  chọn bằng mô phỏng         10.27        6.42            48.10                   1                0
+                 theo mô hình                9.28        8.21            43.45                   1                1
+                 tinh chỉnh                 16.39        7.38            76.76                   0                0
+        Tiện lợi chọn bằng mô phỏng         -3.96       -7.70           -18.84                   0                8
+                 theo mô hình               -5.83       -7.05           -27.23                   0               10
+                 tinh chỉnh                 -4.78       -9.93           -22.69                   0               10
+route   Cân bằng chọn bằng mô phỏng         10.80       -0.84            50.86                  10                0
+                 theo mô hình                7.33       -4.47            34.18                   6                1
+                 tinh chỉnh                 12.10       -0.65            56.99                   8                0
+        Giá trị  chọn bằng mô phỏng         16.95        6.15            79.45                   0                0
+                 theo mô hình               17.08        6.92            80.05                   0                0
+                 tinh chỉnh                 18.30        7.25            85.78                   0                0
+        Tiện lợi chọn bằng mô phỏng         -4.87      -10.56           -23.18                   1                9
+                 theo mô hình               -5.01      -10.55           -23.88                   1                9
+                 tinh chỉnh                 -4.59      -11.11           -21.82                   0               10
+
+== Phiên bản route – thay đổi (%) so với hiện trạng
+kpi                                              distance_m  trip_time_min  impulse_revenue  basket_value  congestion_cells
+instance          plan                                                                                                     
+grid_small        Hiện trạng                           0.00           0.00             0.00          0.00              0.00
+                  Tiện lợi – theo mô hình             -3.49           0.64             0.44          0.10             -6.13
+                  Tiện lợi – chọn bằng mô phỏng       -3.49           0.64             0.44          0.10             -6.13
+                  Tiện lợi – tinh chỉnh               -3.59          -1.76            -7.54         -1.76             -4.06
+                  Cân bằng – theo mô hình             -0.12           9.02            29.51          6.87             -3.14
+                  Cân bằng – chọn bằng mô phỏng       -0.12           9.02            29.51          6.87             -3.14
+                  Cân bằng – tinh chỉnh                0.10           9.05            29.00          6.75             -4.06
+                  Giá trị – theo mô hình               8.49          17.19            63.31         14.73              7.59
+                  Giá trị – chọn bằng mô phỏng         8.48          16.90            62.49         14.54              6.21
+                  Giá trị – tinh chỉnh                 8.21          18.25            68.03         15.83             10.20
+racetrack_small   Hiện trạng                           0.00           0.00             0.00          0.00              0.00
+                  Tiện lợi – theo mô hình             -7.09         -10.61           -31.95         -7.15             -2.17
+                  Tiện lợi – chọn bằng mô phỏng       -7.09         -10.61           -31.95         -7.15             -2.17
+                  Tiện lợi – tinh chỉnh               -7.71          -9.87           -27.51         -6.16             -1.84
+                  Cân bằng – theo mô hình              0.09          13.30            54.36         12.17             -6.39
+                  Cân bằng – chọn bằng mô phỏng       -0.72          12.01            47.52         10.64             -8.23
+                  Cân bằng – tinh chỉnh               -0.31          13.00            50.76         11.36             -7.77
+                  Giá trị – theo mô hình               7.83          19.53            76.03         17.02             17.26
+                  Giá trị – chọn bằng mô phỏng         7.83          19.53            76.03         17.02             17.26
+                  Giá trị – tinh chỉnh                 9.42          22.28            86.49         19.37              9.68
+free_small        Hiện trạng                           0.00           0.00             0.00          0.00              0.00
+                  Tiện lợi – theo mô hình             -3.32          -3.59           -10.23         -2.26            -12.84
+                  Tiện lợi – chọn bằng mô phỏng       -3.32          -3.59           -10.23         -2.26            -12.84
+                  Tiện lợi – tinh chỉnh               -4.27          -1.05            -1.28         -0.28             -3.82
+                  Cân bằng – theo mô hình              0.04          19.26            75.16         16.64             -5.31
+                  Cân bằng – chọn bằng mô phỏng       -0.28          14.84            58.34         12.91             -5.13
+                  Cân bằng – tinh chỉnh               -0.50          16.18            65.19         14.43             -5.01
+                  Giá trị – theo mô hình               3.91          23.49            91.60         20.28             -3.64
+                  Giá trị – chọn bằng mô phỏng         2.73          23.48            91.55         20.27            -13.31
+                  Giá trị – tinh chỉnh                 2.72          23.28            90.65         20.07            -12.00
+grid_medium       Hiện trạng                           0.00           0.00             0.00          0.00              0.00
+                  Tiện lợi – theo mô hình             -7.98          -6.77           -18.24         -3.88            -11.47
+                  Tiện lợi – chọn bằng mô phỏng       -7.98          -6.77           -18.24         -3.88            -11.47
+                  Tiện lợi – tinh chỉnh               -9.12          -9.34           -25.26         -5.38            -12.33
+                  Cân bằng – theo mô hình              0.34           9.35            59.00         12.57              0.20
+                  Cân bằng – chọn bằng mô phỏng       -0.54           8.14            46.14          9.83              7.36
+                  Cân bằng – tinh chỉnh               -0.68          10.61            54.79         11.67              6.49
+                  Giá trị – theo mô hình              12.20          22.05            89.45         19.05             15.27
+                  Giá trị – chọn bằng mô phỏng         7.87          21.64            88.87         18.93             10.81
+                  Giá trị – tinh chỉnh                12.13          24.81            96.86         20.63             20.90
+racetrack_medium  Hiện trạng                           0.00           0.00             0.00          0.00              0.00
+                  Tiện lợi – theo mô hình            -11.21         -11.74           -24.62         -5.37            -18.88
+                  Tiện lợi – chọn bằng mô phỏng      -11.25         -11.76           -24.41         -5.32            -18.18
+                  Tiện lợi – tinh chỉnh              -11.22         -12.99           -27.45         -5.99            -22.69
+                  Cân bằng – theo mô hình             -6.97          -8.64           -19.14         -4.17             -9.11
+                  Cân bằng – chọn bằng mô phỏng       -0.97          12.18            60.28         13.14            -14.76
+                  Cân bằng – tinh chỉnh               -0.82          13.14            67.13         14.63            -11.08
+                  Giá trị – theo mô hình               6.71          26.40            98.53         21.48             -2.45
+                  Giá trị – chọn bằng mô phỏng         6.71          26.40            98.53         21.48             -2.45
+                  Giá trị – tinh chỉnh                11.54          31.69           105.61         23.02              5.43
+free_medium       Hiện trạng                           0.00           0.00             0.00          0.00              0.00
+                  Tiện lợi – theo mô hình             -6.30         -18.83           -47.52         -9.86            -13.56
+                  Tiện lợi – chọn bằng mô phỏng       -6.30         -18.83           -47.52         -9.86            -13.56
+                  Tiện lợi – tinh chỉnh               -6.64         -15.98           -37.67         -7.81             -9.23
+                  Cân bằng – theo mô hình             -4.63          13.74            38.34          7.96            -15.70
+                  Cân bằng – chọn bằng mô phỏng       -0.44          21.37            81.20         16.85              0.89
+                  Cân bằng – tinh chỉnh               -0.14          29.79           106.48         22.09             -2.14
+                  Giá trị – theo mô hình               4.24          36.92           137.89         28.61              6.90
+                  Giá trị – chọn bằng mô phỏng         4.24          36.92           137.89         28.61              6.90
+                  Giá trị – tinh chỉnh                 6.24          41.57           154.00         31.95             11.74
+grid_large        Hiện trạng                           0.00           0.00             0.00          0.00              0.00
+                  Tiện lợi – theo mô hình            -15.46         -13.76           -23.79         -4.75            -15.78
+                  Tiện lợi – chọn bằng mô phỏng      -15.46         -13.76           -23.79         -4.75            -15.78
+                  Tiện lợi – tinh chỉnh              -15.68         -13.75           -23.13         -4.62            -21.16
+                  Cân bằng – theo mô hình             -2.71           3.93            30.29          6.04             -3.85
+                  Cân bằng – chọn bằng mô phỏng       -0.27           4.86            32.44          6.47             -1.56
+                  Cân bằng – tinh chỉnh               -0.48           5.23            35.20          7.02             -2.36
+                  Giá trị – theo mô hình              12.44          14.88            54.81         10.94             21.99
+                  Giá trị – chọn bằng mô phỏng        11.65          14.47            51.96         10.37             10.63
+                  Giá trị – tinh chỉnh                11.57          15.70            57.12         11.40              9.97
+racetrack_large   Hiện trạng                           0.00           0.00             0.00          0.00              0.00
+                  Tiện lợi – theo mô hình            -25.92         -17.16           -30.39         -6.20            -35.55
+                  Tiện lợi – chọn bằng mô phỏng      -26.04         -14.16           -23.69         -4.83            -37.15
+                  Tiện lợi – tinh chỉnh              -26.00         -14.32           -23.81         -4.86            -38.13
+                  Cân bằng – theo mô hình            -17.57           1.73            17.37          3.54            -24.45
+                  Cân bằng – chọn bằng mô phỏng       -1.18          21.60            68.64         14.01              2.58
+                  Cân bằng – tinh chỉnh               -0.74          22.21            69.37         14.16              6.32
+                  Giá trị – theo mô hình               2.24          23.21            73.67         15.03             -1.34
+                  Giá trị – chọn bằng mô phỏng         2.24          23.21            73.67         15.03             -1.34
+                  Giá trị – tinh chỉnh                 2.20          23.86            76.14         15.54              0.37
+free_large        Hiện trạng                           0.00           0.00             0.00          0.00              0.00
+                  Tiện lợi – theo mô hình            -17.00         -17.49           -34.83         -7.01            -18.92
+                  Tiện lợi – chọn bằng mô phỏng      -16.98         -17.45           -34.79         -7.00            -18.69
+                  Tiện lợi – tinh chỉnh              -17.16         -17.44           -33.62         -6.77            -18.58
+                  Cân bằng – theo mô hình            -11.43           0.14            27.61          5.56             -4.27
+                  Cân bằng – chọn bằng mô phỏng       -3.83          11.17            53.31         10.73             21.34
+                  Cân bằng – tinh chỉnh               -2.98          12.33            55.77         11.22             24.66
+                  Giá trị – theo mô hình               4.82          16.84            67.54         13.59             30.89
+                  Giá trị – chọn bằng mô phỏng         4.82          16.84            67.54         13.59             30.89
+                  Giá trị – tinh chỉnh                 4.00          18.61            76.56         15.41             28.70
+case_minimart_n30 Hiện trạng                           0.00           0.00             0.00          0.00              0.00
+                  Tiện lợi – theo mô hình             -7.68          -7.09           -17.66         -3.72            -12.49
+                  Tiện lợi – chọn bằng mô phỏng       -7.68          -7.09           -17.66         -3.72            -12.49
+                  Tiện lợi – tinh chỉnh               -9.73          -5.90           -10.97         -2.31            -15.84
+                  Cân bằng – theo mô hình             -1.76           5.88            29.29          6.17             -3.90
+                  Cân bằng – chọn bằng mô phỏng       -0.07           7.23            31.20          6.57              4.10
+                  Cân bằng – tinh chỉnh                0.02           9.06            36.21          7.63              2.80
+                  Giá trị – theo mô hình               6.36          12.88            47.66         10.04             10.99
+                  Giá trị – chọn bằng mô phỏng         4.95          12.24            45.91          9.67              4.75
+                  Giá trị – tinh chỉnh                 4.50          12.17            46.33          9.76              8.65
