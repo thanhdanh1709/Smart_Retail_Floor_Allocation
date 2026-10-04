@@ -874,23 +874,4 @@ Trước khi áp dụng cho cửa hàng, đo/hiệu chỉnh p, v, dwell và lamb
 
 <a id="quy-trinh-ai"></a>
 
-## 16. Quy trình phát triển với ECC và AGENTS.md
 
-Quy tắc AI riêng của workspace được mô tả trong [AGENTS.md ở gốc repository](../AGENTS.md), nếu tệp này có trong checkout. ECC hỗ trợ cập nhật tài liệu; skill source-command-update-docs yêu cầu đối chiếu source/config/commands thay vì suy diễn từ tài liệu cũ.
-
-Với công việc không đơn giản, AGENTS.md quy định ChatGPT Web trong Project đã cấu hình làm tác nhân phân tích/lập kế hoạch/review; Codex thu thập ngữ cảnh, sửa tệp, chạy kiểm tra và báo kết quả. ChatGPT Project được truy cập bằng MCP playwright và phải được xác minh đúng Project trước khi gửi ngữ cảnh.
-
-~~~text
-Yêu cầu → đọc AGENTS.md + trạng thái Git + source hiện tại
-        → tham vấn ChatGPT Project
-        → Codex sửa đúng phạm vi
-        → build/test/kiểm tra liên quan
-        → gửi kết quả cho ChatGPT Project review
-        → áp dụng điều chỉnh cần thiết → kiểm tra cuối → hoàn thành
-~~~
-
-Khi thay cấu trúc/mục tiêu/loader/config, cập nhật các phần tương ứng của README, kiểm tra lệnh, link và công thức. Giữ thay đổi chưa commit của người dùng; không gửi secrets; không dùng hội thoại ngoài Project làm phương án thay thế khi Project không truy cập/xác minh được.
-
-Các phần kỹ thuật của README bám baseline ghi ở đầu; khi source thay đổi, source và bằng chứng chạy hiện tại là căn cứ để cập nhật tài liệu.
-
-<!-- END AUTO-GENERATED -->
