@@ -19,7 +19,7 @@ import pandas as pd
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import shortest_path
 
-WALKABLE = set("AEC")
+WALKABLE = set("AECP")             # P – khu tập kết đơn online (v4), đi lại được
 SHELF = set("SR")
 DIRS = {"N": (-1, 0), "S": (1, 0), "W": (0, -1), "E": (0, 1)}
 
@@ -104,9 +104,12 @@ class FloorPlan:
         if not entrances or not self.checkouts:
             raise ValueError("Mặt bằng cần ít nhất một ô E (cửa vào) và một ô C (thu ngân)")
         self.entrance = entrances[0]
+        staging = self.cells_of("P")
+        self.has_staging = bool(staging)
+        self.staging = staging[0] if staging else self.entrance
 
-        # điểm: m điểm tiếp cận + cửa vào (chỉ số m)
-        self.points = [s.access for s in self.slots] + [self.entrance]
+        # điểm: m điểm tiếp cận + cửa vào (chỉ số m) + khu tập kết (chỉ số m + 1)
+        self.points = [s.access for s in self.slots] + [self.entrance, self.staging]
         src = [self.node_of[p] for p in self.points]
         dist, pred = shortest_path(self.adj, method="D", unweighted=True,
                                    indices=src, return_predecessors=True)
@@ -121,6 +124,7 @@ class FloorPlan:
         self.D = P[:m, :m].copy()
         self.d_in = P[m, :m].copy()
         self.d_out = dco.min(axis=1)[:m].copy()
+        self.d_0 = P[m + 1, :m].copy()                    # khu tập kết -> slot k (nhặt đơn)
         self.d_entry_exit = float(dco.min(axis=1)[m])
 
         # vùng tiếp xúc: ô lối đi -> danh sách slot

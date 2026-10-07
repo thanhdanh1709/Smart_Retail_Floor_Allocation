@@ -46,6 +46,23 @@ def test_slot_extraction_tiny():
         assert TINY[s.access[0]][s.access[1]] in "AEC"
 
 
+def test_staging_area_distance():
+    # v4 GĐ0: khu tập kết đơn online (ô P) – d_0 là khoảng cách đồ thị từ P tới điểm tiếp cận
+    g = [r for r in TINY]
+    g[4] = "XAAAAAAAPX"
+    fp = FloorPlan(g)
+    assert fp.staging == (4, 8) and fp.has_staging
+    src = fp.node_of[fp.staging]
+    from scipy.sparse.csgraph import shortest_path
+    ref = shortest_path(fp.adj, unweighted=True, indices=[src])[0]
+    assert np.allclose(fp.d_0, [ref[fp.node_of[s.access]] for s in fp.slots])
+    assert not np.allclose(fp.d_0, fp.d_in)
+    assert np.allclose(fp.D, FloorPlan(TINY).D)          # thêm P không đổi D, slot
+    # không có P: khu tập kết mặc định là cửa vào
+    fp0 = FloorPlan(TINY)
+    assert not fp0.has_staging and np.allclose(fp0.d_0, fp0.d_in)
+
+
 def test_cold_assignment():
     g = layouts.assign_cold(layouts.build("grid", "medium"), 6)
     assert FloorPlan(g).is_cold.sum() >= 6

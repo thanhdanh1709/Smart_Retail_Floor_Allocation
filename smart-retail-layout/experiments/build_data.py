@@ -12,6 +12,13 @@ from src.instance import save_floorplans  # noqa: E402
 
 
 def main():
+    if "--items" in sys.argv:            # v4: chỉ dựng dữ liệu cấp món + hồ sơ giờ
+        from src import items, schedule
+        print("Dữ liệu cấp món ...")
+        items.build()
+        print("Hồ sơ theo giờ ...")
+        print(schedule.build_hour_profile().round(4).to_string(index=False))
+        return
     print("1) Tham số từ dữ liệu giỏ hàng Instacart ...")
     params.build_all()
     print("2) Lưu mặt bằng chuẩn ...")
