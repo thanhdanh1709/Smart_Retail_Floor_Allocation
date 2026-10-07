@@ -9,7 +9,9 @@ Hai cách tuyến tính hóa:
   "rlt"   – sum_l y_ijkl = x_ik, sum_k y_ijkl = x_jl  (Adams–Johnson / RLT-1):
             cùng tập nghiệm nguyên nhưng nới lỏng LP chặt hơn nhiều, giải nhanh hơn.
 
-Chế độ: "z1" (min Z1), "z2" (max Z2), "weighted" (công thức 11), "eps" (min Z1, Z2 ≥ ε).
+Chế độ: "z1" (min Z1), "z2" (max Z2), "weighted" (công thức 11), "eps" (min Z1, Z2 ≥ ε),
+        "twoflow_eps" (v4: max Z2 s.t. Z1 ≤ ε, tùy chọn Σ lin_c·x ≤ ε_C – bài thay thế hai luồng,
+        dùng với twoflow.surrogate: Z1 ≡ Z_P^lin, Z2 ≡ Z_W^lin).
 """
 from __future__ import annotations
 
@@ -33,17 +35,17 @@ def _solver(name: str, time_limit: float, threads: int | None, msg: bool, gap: f
 
 
 def build(inst: Instance, mode: str = "weighted", alpha: float = 0.5, eps: float | None = None,
-          linearization: str = "rlt"):
+          linearization: str = "rlt", lin_c: np.ndarray | None = None, eps_c: float | None = None):
     n, m = inst.n, inst.m
     A = inst.allowed[:n]
     K = {i: [k for k in range(m) if A[i, k]] for i in range(n)}
-    sense = pulp.LpMaximize if mode == "z2" else pulp.LpMinimize
+    sense = pulp.LpMaximize if mode in ("z2", "twoflow_eps") else pulp.LpMinimize
     prob = pulp.LpProblem(f"layout_{mode}", sense)
     x = {(i, k): pulp.LpVariable(f"x_{i}_{k}", cat="Binary") for i in range(n) for k in K[i]}
 
     lin1, lin2 = inst.lin1, inst.lin2
     z2 = pulp.lpSum(lin2[i, k] * x[i, k] for (i, k) in x)
-    need_quad = mode in ("z1", "weighted", "eps")
+    need_quad = mode in ("z1", "weighted", "eps", "twoflow_eps")
     y = {}
     if need_quad:
         pairs = [(i, j) for i in range(n) for j in range(i + 1, n) if inst.W[i, j] > 0]
@@ -69,6 +71,11 @@ def build(inst: Instance, mode: str = "weighted", alpha: float = 0.5, eps: float
     elif mode == "eps":
         prob += z1
         prob += z2 >= eps, "eps_constraint"
+    elif mode == "twoflow_eps":      # v4 – bài thay thế hai luồng: max Z_W^lin s.t. Z_P^lin ≤ ε (, C^lin ≤ ε_C)
+        prob += z2
+        prob += z1 <= eps, "eps_pick"
+        if lin_c is not None:
+            prob += pulp.lpSum(lin_c[i, k] * x[i, k] for (i, k) in x) <= eps_c, "eps_conflict"
     else:
         raise ValueError(mode)
 
@@ -109,9 +116,10 @@ def build(inst: Instance, mode: str = "weighted", alpha: float = 0.5, eps: float
 
 def solve(inst: Instance, mode: str = "weighted", alpha: float = 0.5, eps: float | None = None,
           linearization: str = "rlt", solver: str = "highs", time_limit: float = 600,
-          threads: int | None = None, msg: bool = False, gap: float = 1e-6) -> dict:
+          threads: int | None = None, msg: bool = False, gap: float = 1e-6,
+          lin_c: np.ndarray | None = None, eps_c: float | None = None) -> dict:
     t0 = time.time()
-    prob, x, y, z1e, z2e = build(inst, mode, alpha, eps, linearization)
+    prob, x, y, z1e, z2e = build(inst, mode, alpha, eps, linearization, lin_c, eps_c)
     t_build = time.time() - t0
     t1 = time.time()
     status = prob.solve(_solver(solver, time_limit, threads, msg, gap))

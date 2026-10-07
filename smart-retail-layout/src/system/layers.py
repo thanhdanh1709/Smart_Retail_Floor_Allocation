@@ -16,7 +16,7 @@ from functools import lru_cache
 import numpy as np
 import pandas as pd
 
-from .. import items as items_mod, layouts, params, routing, schedule
+from .. import items as items_mod, layouts, params, routing, schedule, twoflow
 from .. import simulate as S
 from ..floorplan import FloorPlan
 from ..instance import ROOT, Instance, make_instance
@@ -33,11 +33,13 @@ class Fidelity:
     sim_rep: int              # số lần mô phỏng ở T4.evaluate (0 = chỉ giải tích)
     sim_customers: int
     lam_customers: int        # số khách mô phỏng khi hiệu chỉnh λ
+    nsga_gens: int = 0        # NSGA-II 3 mục tiêu ở T2 (0 = tắt); ngân sách theo thế hệ để tái lập được
+    nsga_pop: int = 60
 
 
 FIDELITY = {"L0": Fidelity(300, 400, 0, 0, 500),
-            "L1": Fidelity(1500, 2000, 5, 2000, 2000),
-            "L2": Fidelity(3000, 6000, 30, 5000, 5000)}
+            "L1": Fidelity(1500, 2000, 5, 2000, 2000, nsga_gens=30),
+            "L2": Fidelity(3000, 6000, 30, 5000, 5000, nsga_gens=100)}
 
 
 # ------------------------------------------------------------ dữ liệu chung
@@ -170,7 +172,8 @@ def assignment_table(inst: Instance, perm: np.ndarray) -> pd.DataFrame:
     return df
 
 
-def build_plan(spec: StoreSpec, bank: FlowBank, perm: np.ndarray, z_star: dict, method: str) -> CategoryPlan:
+def build_plan(spec: StoreSpec, bank: FlowBank, perm: np.ndarray, z_star: dict, method: str,
+               front: dict | None = None) -> CategoryPlan:
     inst = bank.inst
     perm = np.asarray(perm, dtype=np.int64)
     z_w = {m: bank.z_w(perm, m) for m in bank.models}
@@ -180,7 +183,7 @@ def build_plan(spec: StoreSpec, bank: FlowBank, perm: np.ndarray, z_star: dict, 
     conf = {m: metrics.conflict(e_pick, bank.exposure(perm, m), bank.hours, bank.online_share)
             for m in bank.models}
     return CategoryPlan(perm, assignment_table(inst, perm), bank.z_p(perm), z_w, z_star, reg,
-                        max(reg.values()), conf, inst.violations(perm), method)
+                        max(reg.values()), conf, inst.violations(perm), method, front)
 
 
 class RouteLocalSearch:
@@ -200,6 +203,13 @@ class RouteLocalSearch:
         cands = [cur]
         for m in bank.models:
             cands.append(_hill_climb(inst, cur, lambda p, m=m: bank.z_w(p, m), feasible, fid.search_iter, rng))
+        front = None
+        if fid.nsga_gens > 0:                 # GĐ2: NSGA-II (Z_P, −Z_W^m, C^m) theo định tuyến, mỗi m một lần
+            fronts = {m: twoflow.nsga3(bank, m, pop_size=fid.nsga_pop, n_gen=fid.nsga_gens, seed=spec.seed,
+                                       seeds=cands) for m in bank.models}
+            perms = [p for fr in fronts.values() for p in fr["perms"]]
+            cands += [p for p in perms if feasible(p)]
+            front = {"perms": perms, "by_model": {m: fr["F"] for m, fr in fronts.items()}}
         z_star = {m: max(bank.z_w(p, m) for p in cands) for m in bank.models}
 
         def neg_max_regret(p):
@@ -207,8 +217,9 @@ class RouteLocalSearch:
 
         start = max(cands, key=neg_max_regret)
         best = _hill_climb(inst, start, neg_max_regret, feasible, fid.search_iter, rng)
+        how = "NSGA-II 3 mục tiêu + " if front else ""
         return build_plan(spec, bank, best, z_star,
-                          "T2 tạm: leo đồi 2-swap theo định tuyến, minimax regret, ràng buộc ε")
+                          f"T2: {how}leo đồi 2-swap theo định tuyến, minimax regret, ràng buộc ε", front)
 
 
 # ------------------------------------------------------------------ tầng 3

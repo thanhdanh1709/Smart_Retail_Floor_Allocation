@@ -186,6 +186,7 @@ class CategoryPlan:
     conflict: dict
     violations: dict
     method: str = ""
+    front: dict | None = None                      # tập Pareto (Z_P, −Z_W^m, C^m) theo định tuyến, nếu có
 
 
 # ------------------------------------------------------------------ tầng 3
