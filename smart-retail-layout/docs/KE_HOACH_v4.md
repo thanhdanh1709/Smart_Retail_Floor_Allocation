@@ -6,20 +6,55 @@
 
 ---
 
-## 0. GA và ILP có tìm được sơ đồ tốt nhất theo hướng 1 và 3 không?
+## 0. Hàm mục tiêu: định tuyến là chính, tuyến tính chỉ là bài thay thế cho ILP
 
-**Được, nhưng mỗi công cụ "tối ưu" theo nghĩa khác nhau – phải nói rõ trong luận văn:**
+### 0.1 Vì sao không dùng dạng tuyến tính làm hàm mục tiêu chính
+Kết quả v3 đã trả lời câu này:
 
-| | ILP | GA |
+| Bằng chứng v3 | Ý nghĩa |
+|---|---|
+| Spearman với mô phỏng: định tuyến Z1 0,996 / Z2 0,994; QAP hiệu chỉnh chỉ 0,31–0,40 | Dạng QAP/tuyến tính xếp hạng sơ đồ **sai** |
+| E7(d): e_k phụ thuộc sơ đồ, CV 0,65; Spearman(e hình học, lưu lượng thật) 0,0–0,3 | Cố định e_k là bỏ đi phần lớn thông tin |
+| E5: route "theo mô hình" +34% DT ngẫu hứng, 6/10 bộ trội; QAP −9,8% | Tối ưu theo dạng tuyến tính cho sơ đồ kém hơn |
+
+Dạng Z_W = Σ v_i·q_i·e_k·x_ik sai ở **hai chỗ**, không chỉ một:
+1. **e_k phụ thuộc x:** khách đi tới chỗ đặt món họ cần, nên sơ đồ đổi thì lưu lượng đổi. Lặp điểm bất động (MSA) chỉ sửa được chỗ này.
+2. **Tương quan giữa giỏ và đường đi:** doanh thu ngẫu hứng chỉ tính cho ngành **không có trong giỏ** mà khách **đi ngang qua**. Mà khách đi ngang qua đâu lại phụ thuộc chính giỏ đó. Tổng Σ e_k·coef dùng lưu lượng trung bình nên bỏ mất tương quan này, kể cả khi e_k đúng. `RouteModel` tính đúng vì nó định tuyến **từng giỏ** và loại ngành đã có trong giỏ.
+
+Dạng tuyến tính có trong bản trước chỉ vì nó cho phép ILP giải **chính xác**. Nhưng chính xác cho một hàm sai thì không có giá trị. Vì vậy v4 đổi lại như sau.
+
+### 0.2 Phân vai mới
+
+| | Hàm mục tiêu chính (định tuyến) | Bài thay thế tuyến tính / QAP |
 |---|---|---|
-| Hướng 3 (hai luồng) | **Chính xác** với n ≤ ~15: Z_P là QAP (RLT đã có), Z_W và C tuyến tính → ε-ràng buộc cho Pareto đúng | Gần đúng, n lớn; NSGA-II lai (tốt nhất ở E4) |
-| Hướng 1 (bền vững) | **Chính xác khi e_k^m cố định**: minimax regret = ràng buộc tuyến tính thêm vào ILP | Fitness = regret lớn nhất qua các mô hình; e_k^m tính lại theo từng sơ đồ |
-| Lưu lượng phụ thuộc sơ đồ | Lặp điểm bất động + MSA → tối ưu của **bài con**, không bảo đảm toàn cục | Xử lý trực tiếp trong hàm đánh giá |
-| Vai trò | Chuẩn kiểm tra GA (n nhỏ) | Lời giải chính |
+| Z_W^m | `RouteModel` mở rộng: định tuyến từng giỏ theo mô hình m, doanh thu ngẫu hứng của ngành ∉ giỏ trên đường đi | Σ v·q·e_k^m(x_t)·x_ik, e đóng băng tại x_t |
+| Z_P | Quãng đường nhặt kỳ vọng: định tuyến từng đơn từ **khu tập kết** (Held-Karp/2-opt) | Σ f_ij·d_kl·x_ik·x_jl + Σ g_i·d_0k·x_ik (QAP, RLT) |
+| C^m | Σ_h Σ_k (lượt người nhặt qua k)·(mật độ khách tại k, giờ h), **cả hai lấy từ định tuyến** | Σ g_i·t_k^m·x_ik |
+| Bộ giải | **GA / NSGA-II** (lời giải chính) | ILP |
+| Vai trò | Thiết kế thật | Khởi tạo, kiểm tra GA, đo sai số của xấp xỉ |
 
-Lưu ý:
-1. "Tối ưu" của ILP chỉ đúng với mô hình xấp xỉ (tổng theo cặp, e cố định). Quãng đường nhặt thật, chạm mặt được **chấm lại** ở tầng 4.
-2. Z_W^m* phải giải **với cùng ràng buộc** (lạnh, tách xa, R). Có tách xa thì Hungarian chỉ là cận trên → dùng ILP tuyến tính.
+### 0.3 ILP còn làm gì
+- **Tuyến tính hóa tuần tự:** đóng băng e tại x_t (lấy từ định tuyến) → giải ILP → **chấm lại bằng định tuyến** → MSA → lặp. Giữ nghiệm tốt nhất **theo định tuyến**. Đây là một bộ giải heuristic dựa trên ILP, dùng để so với GA và làm hạt giống cho GA.
+- **Kiểm tra GA cài đúng:** trên chính bài thay thế (n ≤ 15), GA phải trúng tối ưu ILP, như E2 đã làm.
+- **Đo cái giá của xấp xỉ:** sơ đồ tối ưu theo bài tuyến tính, chấm bằng định tuyến, mất bao nhiêu. Thực chất đây là **một hàng của ma trận L[A,B]** (A = "mô hình tuyến tính"), nên trở thành một phát hiện của hướng 1 chứ không chỉ là chi tiết kỹ thuật.
+- Phải ghi trong luận văn: **không còn khẳng định "ILP cho Pareto chính xác"** với hàm thật. ILP chỉ chính xác cho bài thay thế.
+
+### 0.4 Hệ quả cho minimax regret
+- Z_W^m* theo định tuyến không giải chính xác được → dùng **giá trị tốt nhất đã biết**: max của nhiều lần GA, ILP tuyến tính hóa tuần tự, và các sơ đồ tối ưu cho từng mô hình.
+- Nếu Z_W^m* tốt nhất đã biết thấp hơn tối ưu thật thì regret tính ra **nhỏ hơn** regret thật. Phải báo cáo rõ điều này. Kiểm tra độ ổn định của Z_W^m* qua số lần chạy GA (đường cong "best-of-k").
+
+### 0.5 Mở rộng định tuyến cho mọi mô hình hành vi
+`RouteModel` hiện chỉ có một luật: NN + 2-opt, đường ngắn nhất, tập slot đi qua cố định cho mỗi chặng (`leg_idx`). Cần tổng quát thành:
+- **Thứ tự dừng** theo mô hình m: TSP, NN, rắn, ưu tiên chu vi.
+- **Mỗi chặng** a→b: thay tập slot đi qua bằng **xác suất đi qua** P^m[a,b,k] (đường ngắn nhất: 0/1; recursive logit: giải tích, tính trước một lần cho mỗi mặt bằng).
+- Doanh thu ngẫu hứng tính theo **xác suất đi qua slot k ít nhất một lần trong chuyến**: 1 − Π_chặng (1 − P^m[a,b,k]), giả định các chặng độc lập. Mô phỏng tác tử dùng để kiểm chứng giả định này.
+
+### 0.6 Tốc độ (điều kiện để GA chạy được)
+Hiện tại ~1 ms/lần đánh giá (1.500 giỏ, một mô hình). Với |M| = 7 mô hình, cộng thêm định tuyến nhặt đơn, sẽ lên khoảng 10 ms. Cách giữ GA đủ nhanh:
+- **Đánh giá chênh lệch khi đổi chỗ r↔s:** chỉ định tuyến lại các giỏ chứa ngành ở r hoặc s. Các giỏ còn lại chỉ đổi hệ số ngẫu hứng tại hai slot: dùng số lượt đi qua của từng slot đã lưu, tách theo "giỏ có chứa ngành j hay không".
+- **Nhiều mức trung thực:** 300 giỏ khi sàng lọc, 1.500 ở mức L1, mẫu độc lập lớn ở mức L2. Tương ứng mức L0–L2 ở mục 1.4.
+- Song song hóa theo mô hình m, và cache như hiện có.
+- Tiêu chí: ≤ 3 ms/lần đánh giá chênh lệch với |M| = 7 (đo ở GĐ3).
 
 ---
 
@@ -80,7 +115,7 @@ Quy ước bắt buộc (kiểm tra bằng test):
 
 | Vòng | Truyền gì | Cách lặp | Dừng khi |
 |---|---|---|---|
-| T4 → T2 (lưu lượng phụ thuộc sơ đồ) | e^m(x), t^m(x, h) | GA: tính trong fitness. ILP: điểm bất động + MSA | ‖Δe‖/‖e‖ < 2% hoặc 10 vòng, giữ nghiệm tốt nhất |
+| T4 → T2 (lưu lượng phụ thuộc sơ đồ) | định tuyến theo m (P^m đi qua, mật độ theo giờ) | GA: định tuyến ngay trong fitness. ILP (bài thay thế): tuyến tính hóa tuần tự + MSA, chấm lại bằng định tuyến | ‖Δe‖/‖e‖ < 2% hoặc 10 vòng, giữ nghiệm tốt nhất |
 | T3 → T2 (giá trị và sức chứa ngành) | v_i, s_i | v ← v + (v' − v)/t (MSA); s_i chỉ tăng (đơn điệu) | ‖Δv‖/‖v‖ < 1% và s không đổi, tối đa 5 vòng |
 | T4 → T3 (hướng dòng trong lối) | ψ_c | tính lại sau mỗi lần T2 đổi | theo vòng T3 → T2 |
 | T3 → T1 (khả thi sức chứa) | Σ s_i so với sức chứa | θ không khả thi → loại hoặc sửa (kéo dài dãy) | — |
@@ -93,7 +128,7 @@ Báo cáo trong luận văn: số vòng thực tế, đường hội tụ, và *
 |---|---|---|---|---|
 | L0 | GA 2 s | tham lam | chỉ giải tích | sàng lọc θ |
 | L1 | GA 20 s + vòng ghép | heuristic + tìm kiếm cục bộ | giải tích + mô phỏng 5 lần | vòng giữa successive halving |
-| L2 | GA 30 hạt giống / ILP khi n ≤ 15 | MIP | mô phỏng 30 lần, hạt giống độc lập | phương án cuối, thí nghiệm |
+| L2 | GA 30 hạt giống (định tuyến, mẫu giỏ độc lập lớn) + ILP tuyến tính hóa tuần tự làm hạt giống khi n ≤ 15 | MIP | mô phỏng 30 lần, hạt giống độc lập | phương án cuối, thí nghiệm |
 
 ### 1.5 Bộ điều phối, bộ nhớ đệm, chạy lại từng phần
 - `src/system/orchestrator.py`: `design(spec) -> StoreDesign` chạy toàn bộ; `rerun(design, changed=...)` chỉ chạy lại các tầng bị ảnh hưởng:
@@ -124,15 +159,15 @@ Báo cáo trong luận văn: số vòng thực tế, đường hội tụ, và *
 
 ---
 
-## 2. Tầng 2 – QAP hai luồng, minimax regret (xương sống)
+## 2. Tầng 2 – Xếp ngành hàng hai luồng theo định tuyến, minimax regret (xương sống)
 
-**Biến:** x_ik = 1 nếu ngành i ở vị trí k (giữ ràng buộc (4)(5)(8)(9)).
+**Biến:** hoán vị π (≡ x_ik), giữ ràng buộc (4)(5)(8)(9). Mọi mục tiêu tính bằng **định tuyến** (mục 0.2). Dạng tuyến tính / QAP chỉ dùng cho ILP.
 
-- **Nhặt đơn (min):** Z_P = Σ f_ij·d_kl·x_ik·x_jl + Σ g_i·d_0k·x_ik  (= Z1 hiện tại, lin1 = g·d_0 → tái dùng RLT, fastops, GA).
-- **Khách tại chỗ (max), mô hình m:** Z_W^m = Σ v_i·q_i·e_k^m·x_ik.
-- **Xung đột (min):** C^m = Σ_h Σ g_i(h)·t_k^m(h)·x_ik — theo giờ h (tầng 4 cung cấp; g_i(h) từ `order_hour_of_day`).
-- **Hướng 3:** max Z_W s.t. Z_P ≤ ε (tùy chọn C ≤ ε_C), quét ε → Pareto.
-- **Hướng 1:** min τ s.t. τ ≥ (Z_W^m* − Z_W^m(x))/Z_W^m* ∀m ∈ M; Z_P ≤ ε.
+- **Nhặt đơn (min):** Z_P(π) = quãng đường nhặt kỳ vọng mỗi đơn, định tuyến từ khu tập kết qua các ngành trong đơn rồi về. Bài thay thế cho ILP: Σ f_ij·d_kl·x_ik·x_jl + Σ g_i·d_0k·x_ik.
+- **Khách tại chỗ (max), mô hình m:** Z_W^m(π) = E_giỏ[Σ_k P^m(đi qua k | giỏ, π)·coef_π(k)·1{π(k) ∉ giỏ}].
+- **Xung đột (min):** C^m(π) = Σ_h Σ_k λ_P(h)·pass_P(k|π)·λ_W(h)·pass_W^m(k|π)·dwell_k. Cả hai lượt đi qua lấy từ định tuyến; λ_P(h) từ `order_hour_of_day`.
+- **Hướng 3:** NSGA-II trên (Z_P, −Z_W, C). ε-ràng buộc bằng GA có phạt; ILP ε-ràng buộc trên bài thay thế làm hạt giống và mốc so sánh.
+- **Hướng 1:** min_π max_m (Z_W^m* − Z_W^m(π))/Z_W^m* s.t. Z_P(π) ≤ ε. Z_W^m* = giá trị tốt nhất đã biết (mục 0.4).
 - **Mở rộng (từ tầng 3):** ngành i chiếm s_i ô liền nhau trên cùng một dãy kệ. GA: mã hóa hoán vị + giải mã tuần tự theo dãy (kiểu "space-filling decoding"). ILP: biến vị trí bắt đầu của đoạn kệ, chỉ dùng cho n nhỏ.
 
 Giả định: giỏ khách tại chỗ cùng phân phối với đơn Instacart (+ độ nhạy kích thước giỏ); v_i giả định (+ độ nhạy).
@@ -289,7 +324,7 @@ Nguyên tắc: **dựng khung hệ thống chạy được trước** (GĐ1), m�
 | 1 | **Khung hệ thống:** `contracts`, `metrics`, `orchestrator`, `cache`, `store.yaml`, CLI, test e2e + test hợp đồng. Bản tạm: T1 = `layouts.PRESETS`, T2 = GA hiện có, T3 = xếp món theo tần suất, T4 = `routing` + `simulate` hiện có | khung | 4 |
 | 2 | **Tầng 2 hai luồng** (mode `twoflow_eps`, NSGA-II 3 mục tiêu, test vét cạn) | T2 | 3 |
 | 3 | **Tầng 4a – hành vi:** RL giải tích, E^μ, RL-A, PER, SUE; hiệu chỉnh khớp mô-men; `FlowBank` + cache | T4 (dự đoán) | 5 |
-| 4 | **Tầng 2 hướng 1:** Z_W^m*, ma trận L, minimax ILP/GA, MSA | T2 | 3 |
+| 4 | **Tầng 2 hướng 1:** RouteModel tổng quát cho M (P^m, đánh giá chênh lệch ≤ 3 ms), Z_W^m* tốt nhất đã biết, ma trận L (có hàng "mô hình tuyến tính"), GA minimax, ILP tuyến tính hóa tuần tự | T2 | 3 |
 | 5 | **Tầng 4b – nhặt đơn:** Held-Karp/OR-Tools, S-shape/largest gap/Ratliff–Rosenthal, batching, tránh khách, lịch theo giờ | T4 (nhặt) | 5 |
 | 6 | **Tầng 4c – mô phỏng hai luồng** theo thời gian, chạm mặt giải tích vs mô phỏng | T4 (đánh giá) | 3 |
 | 7 | **Tầng 3:** dữ liệu cấp món, MIP SSAP + heuristic, khối nhóm con, planogram, `feedback` s_i, v_i | T3 | 5 |
@@ -313,8 +348,8 @@ Mỗi giai đoạn chỉ coi là xong khi:
 | Mã | Tầng | Câu hỏi | Kết quả chính |
 |---|---|---|---|
 | E1, E2 (giữ) | 2 | GA cài đúng? | QAPLIB, GA vs ILP |
-| **E8** | 2+4 | Tối ưu theo A mất bao nhiêu khi chấm bằng B? | Ma trận L[A,B], 7 mô hình × 3 mặt bằng (E5 cũ là một ô) |
-| **E9** | 2 | Đánh đổi nhặt đơn ↔ doanh thu ngẫu hứng | Pareto ILP (n ≤ 15) vs NSGA-II (n = 15, 40) |
+| **E8** | 2+4 | Tối ưu theo A mất bao nhiêu khi chấm bằng B? | Ma trận L[A,B], 7 mô hình hành vi + hàng "mô hình tuyến tính/QAP" × 3 mặt bằng; mọi ô chấm bằng định tuyến (E5 cũ là một ô) |
+| **E9** | 2 | Đánh đổi nhặt đơn ↔ doanh thu ngẫu hứng | Pareto NSGA-II theo định tuyến (n = 15, 40); so với Pareto ILP của bài thay thế sau khi chấm lại bằng định tuyến |
 | **E10** | 2 | Giá của tính bền vững | Minimax vs tối ưu riêng vs kỳ vọng |
 | **E11** | 4 | Hiệu chỉnh mô hình hành vi | Độ khớp sự thật cách điệu; độ nhạy μ, η |
 | **E12** | 4 | Định tuyến nhặt hàng | Chính xác vs S-shape/largest gap/R–R theo mẫu kệ; lợi ích batching; tương quan Z_P ↔ quãng đường thật |
@@ -340,7 +375,7 @@ Thống kê: 30 hạt giống; Wilcoxon + Holm, A12, Friedman (như `extra_stats
 | Không có giá, độ rộng món (tầng 3) | Giả định + độ nhạy; báo cáo kết luận nào **không đổi** theo giả định |
 | Tầng 1 tốn tính toán (mỗi θ chạy tầng 2) | Successive halving + e giải tích; ước lượng: 5 mẫu × 50 θ × 2 s ≈ 10 phút cho vòng đầu |
 | SUE / vòng lặp e_k không hội tụ | MSA + giữ tốt nhất; báo cáo khoảng hội tụ |
-| ILP minimax + RLT chậm ở n = 15 | Warm start từ GA; Z_W^m* không cần ràng buộc Z_P |
+| Định tuyến |M| mô hình làm GA chậm | Đánh giá chênh lệch, mẫu giỏ theo mức trung thực, song song theo m; ILP chỉ dùng ở n ≤ 15 |
 | Regret bị một mô hình chi phối | Báo cáo có/không có mô hình đó + regret kỳ vọng |
 | Bị phản biện "tối ưu theo chính mô phỏng" | E18; nêu rõ số % là tương đối |
 | Khối lượng lớn (~45 ngày) | Lõi GĐ1–3 xong trước; mỗi tầng có bản `quick` chạy được độc lập để không chặn viết bài |
@@ -349,7 +384,7 @@ Thống kê: 30 hạt giống; Wilcoxon + Holm, A12, Friedman (như `extra_stats
 
 ## 9. Đóng góp dự kiến
 
-1. **Tầng 2:** ma trận thiệt hại khi mô hình hành vi sai + bố trí minimax regret (ILP chính xác n nhỏ, GA n lớn); QAP hai luồng nhặt đơn – khách tại chỗ – xung đột.
+1. **Tầng 2:** ma trận thiệt hại khi mô hình hành vi sai + bố trí minimax regret **theo định tuyến** (GA, ILP tuyến tính hóa tuần tự làm hạt giống), có định lượng cái giá của xấp xỉ tuyến tính; xếp ngành hai luồng nhặt đơn – khách tại chỗ – xung đột.
 2. **Tầng 4:** recursive logit giải tích (có sức hút, có né đông) đặt trong vòng tối ưu, không cần huấn luyện lại cho sơ đồ mới; hiệu chỉnh bằng sự thật cách điệu; lịch nhặt theo giờ giảm chạm mặt.
 3. **Tầng 3:** SSAP hai luồng ở cấp món (tranh chấp vùng vàng giữa món bốc đồng và món hay nhặt), ghép ngược sức chứa và giá trị ngành lên tầng 1–2.
 4. **Tầng 1:** so sánh độ bền của mẫu kệ trước bất định hành vi; đánh đổi độ rộng lối – chiều dài kệ dưới hai luồng; tối ưu hai cấp nhiều độ trung thực.
@@ -374,12 +409,12 @@ Thống kê: 30 hạt giống; Wilcoxon + Holm, A12, Friedman (như `extra_stats
 | `src/outer.py` (mới) | 1 | LHS, successive halving, Bayes |
 | `src/model_ilp.py` | 2 | mode `twoflow_eps`, `minimax` (τ) |
 | `src/twoflow.py` (mới) | 2 | dựng instance hai luồng, ngành nhiều ô |
-| `src/robust.py` (mới) | 2 | Z_W^m*, ma trận L, minimax ILP/GA, MSA |
+| `src/robust.py` (mới) | 2 | Z_W^m* tốt nhất đã biết, ma trận L, GA minimax, ILP tuyến tính hóa tuần tự |
 | `src/ga.py`, `src/moo.py` | 2 | fitness minimax, 3 mục tiêu, giải mã nhiều ô |
 | `src/items.py` (mới) | 3 | dữ liệu cấp món: tần suất, lift thưa, lọc, giả định giá/độ rộng |
 | `src/slotting.py` (mới) | 3 | MIP SSAP, heuristic, khối nhóm con, planogram |
 | `src/behavior.py` (mới) | 4 | RL, RL-A, PER, SUE, E^μ, hiệu chỉnh khớp mô-men |
-| `src/routing.py` | 4 | nhận E bất kỳ |
+| `src/routing.py` | 2, 4 | RouteModel tổng quát: thứ tự dừng theo m, xác suất đi qua P^m, định tuyến nhặt đơn từ khu tập kết, đánh giá chênh lệch |
 | `src/picking.py` (mới) | 4 | Held-Karp/OR-Tools, S-shape, largest gap, R–R, batching, tránh khách |
 | `src/schedule.py` (mới) | 4 | hồ sơ giờ, lịch nhặt theo đợt |
 | `src/simulate.py` | 4 | tác tử nhặt hàng, theo thời gian, sức chứa ô, chạm mặt |
