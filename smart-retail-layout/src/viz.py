@@ -11,7 +11,7 @@ from matplotlib.colors import ListedColormap  # noqa: E402
 from matplotlib.patches import Rectangle  # noqa: E402
 
 CELL_COLORS = {"X": "#3b3b3b", "A": "#ffffff", "S": "#d9d4c7", "R": "#bfe0f2", "E": "#59a14f",
-               "C": "#f28e2b"}
+               "C": "#f28e2b", "P": "#b07aa1"}    # P: khu tập kết đơn online (v4)
 
 
 def plot_floorplan(fp, ax=None, inst=None, perm=None, title: str = "", label: str = "id",

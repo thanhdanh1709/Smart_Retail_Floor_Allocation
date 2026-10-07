@@ -250,7 +250,8 @@ def make_instance(kind: str, scale: str, n: int | None = None, level: str | None
 
     grid = layouts.build(kind, scale) if grid is None else list(grid)
     need = n_cold if restrict_slots else int(np.ceil(n_cold * (1 + cold_slack)))
-    grid = layouts.assign_cold(grid, need)
+    if int(FloorPlan(grid).is_cold.sum()) < need:     # lưới đã đủ slot lạnh (vd. do tầng 1 sinh) thì giữ
+        grid = layouts.assign_cold(grid, need)
     fp = FloorPlan(grid, name=f"{kind}_{scale}")
 
     if restrict_slots:

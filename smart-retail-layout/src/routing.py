@@ -19,8 +19,8 @@ from .instance import Instance
 
 
 @njit(cache=True)
-def _evaluate(cat_at, slot_of, b_ptr, b_idx, b_w, PD, PC, leg_ptr, leg_idx, coef, E, M1, seen, mark,
-              expo):
+def _evaluate(cat_at, slot_of, b_ptr, b_idx, b_w, PD, PC, leg_ptr, leg_idx, coef, E, M1, FIN, two_opt,
+              seen, mark, expo):
     nb = b_ptr.shape[0] - 1
     tot_w = 0.0
     dist_sum = 0.0
@@ -60,7 +60,7 @@ def _evaluate(cat_at, slot_of, b_ptr, b_idx, b_w, PD, PC, leg_ptr, leg_idx, coef
             seq[t + 1] = cur
         # 2-opt đường mở, đầu E, cuối là quầy thu ngân
         n_ = L + 1
-        improved = L >= 2
+        improved = two_opt and L >= 2
         while improved:
             improved = False
             for a in range(n_ - 2):
@@ -94,7 +94,7 @@ def _evaluate(cat_at, slot_of, b_ptr, b_idx, b_w, PD, PC, leg_ptr, leg_idx, coef
                 nxt = seq[t + 1]
                 d += PD[a, nxt]
             else:
-                nxt = M1 - 1                      # đích "thu ngân"
+                nxt = FIN                         # đích cuối: thu ngân hoặc khu tập kết
                 d += PC[a]
             lg = a * M1 + nxt
             for q in range(leg_ptr[lg], leg_ptr[lg + 1]):
@@ -129,21 +129,30 @@ class RouteModel:
     """Bộ đánh giá Z1, Z2 theo định tuyến cho một instance (dùng chung mặt bằng với Simulator)."""
 
     def __init__(self, inst: Instance, lam: float, sigma: float = 0.6, n_baskets: int = 1500,
-                 p_scale: float = 1.0, seed: int = 0):
+                 p_scale: float = 1.0, seed: int = 0, origin: str = "entrance", dest: str = "checkout",
+                 two_opt: bool = True):
+        """origin ∈ {entrance, staging}, dest ∈ {checkout, staging}: khách tại chỗ đi cửa vào → thu ngân;
+        người nhặt đơn online (v4) đi khu tập kết → khu tập kết. two_opt=False: mô hình NN thuần."""
         self.inst = inst
         fp = inst.fp
         self.fp = fp
         m = fp.m
-        self.E = m                                   # chỉ số điểm cửa vào (như Simulator)
-        self.M1 = m + 1                              # đích m = quầy thu ngân
+        npts = len(fp.points)                        # m slot + cửa vào (m) + khu tập kết (m + 1)
+        self.E = {"entrance": m, "staging": m + 1}[origin]
+        self.M1 = npts + 1                           # đích npts = quầy thu ngân
+        self.FIN = {"checkout": npts, "staging": m + 1}[dest]
+        self.two_opt = bool(two_opt)
         src_nodes = [fp.node_of[p] for p in fp.points]
         self.PD = np.ascontiguousarray(fp._dist[:, src_nodes], dtype=np.float64)
-        self.PC = np.array([fp.leg_length(a, -1) for a in range(m + 1)], dtype=np.float64)
-        # danh sách slot tiếp xúc của mọi chặng a -> b (b = m: thu ngân), dạng CSR
+        if dest == "checkout":
+            self.PC = np.array([fp.leg_length(a, -1) for a in range(npts)], dtype=np.float64)
+        else:
+            self.PC = np.ascontiguousarray(self.PD[:, self.FIN])
+        # danh sách slot tiếp xúc của mọi chặng a -> b (b = npts: thu ngân), dạng CSR
         ptr, idx = [0], []
-        for a in range(m + 1):
-            for b in range(m + 1):
-                if b == m:
+        for a in range(npts):
+            for b in range(self.M1):
+                if b == npts:
                     exps = fp.leg(a, -1)[1]
                 elif b == a:
                     exps = ()
@@ -186,7 +195,8 @@ class RouteModel:
     def _run(self, perm: np.ndarray):
         cat_at, slot_of = self._maps(perm)
         return _evaluate(cat_at, slot_of, self.b_ptr, self.b_idx, self.b_w, self.PD, self.PC, self.leg_ptr,
-                         self.leg_idx, self.coef, self.E, self.M1, self._seen, self._mark, self._expo)
+                         self.leg_idx, self.coef, self.E, self.M1, self.FIN, self.two_opt, self._seen,
+                         self._mark, self._expo)
 
     def evaluate(self, perm) -> tuple[float, float]:
         """(Z1 = quãng đường TB, Z2 = doanh thu ngẫu hứng kỳ vọng TB)."""

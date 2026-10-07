@@ -209,6 +209,23 @@ def test_route_model_matches_simulation(calibrated_small):
         assert rm.evaluate(new)[1] > z2
 
 
+def test_route_model_picking_and_nn():
+    # v4: người nhặt đơn đi từ khu tập kết P rồi quay về P; mô hình NN (không 2-opt) không ngắn hơn SP
+    from src import routing
+    g = layouts.place_staging(layouts.build("grid", "small"))
+    assert sum(r.count("P") for r in g) == 1
+    inst = make_instance("grid", "small", grid=g)
+    assert inst.fp.has_staging
+    sp = routing.RouteModel(inst, 0.05, n_baskets=400)
+    nn = routing.RouteModel(inst, 0.05, n_baskets=400, two_opt=False)
+    assert nn.evaluate(inst.current)[0] >= sp.evaluate(inst.current)[0] - 1e-9
+    pk = routing.RouteModel(inst, 0.05, n_baskets=400, origin="staging", dest="staging")
+    j = int(inst.current[0]) if inst.current[0] < inst.n else 0
+    pk.b_ptr, pk.b_idx, pk.b_w = np.array([0, 1]), np.array([j]), np.array([1.0])
+    k = int(np.where(np.asarray(inst.current) == j)[0][0])
+    assert abs(pk._run(np.asarray(inst.current))[0] - 2 * inst.fp.d_0[inst.slot_idx[k]]) < 1e-9
+
+
 def test_route_search_respects_relocation_budget(calibrated_small):
     from src import pipeline as P, routing
     inst, _, cal, calib = calibrated_small

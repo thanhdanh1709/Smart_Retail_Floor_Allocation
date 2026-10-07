@@ -120,6 +120,22 @@ def assign_cold(grid: list[str], n_cold: int, seg_len: int = 2) -> list[str]:
     return out
 
 
+def place_staging(grid: list[str], cell: tuple[int, int] | None = None) -> list[str]:
+    """Đặt khu tập kết đơn online (ô P, v4). Mặc định: ô lối đi xa nhất bên phải ở hàng thu ngân
+    (sát kho phía sau). Mỗi mặt bằng chỉ một ô P."""
+    g = [list(r.replace("P", "A")) for r in grid]
+    if cell is None:
+        H = len(g)
+        row = next(r for r in range(H - 2, 0, -1) if "C" in g[r])
+        col = max(c for c, ch in enumerate(g[row]) if ch == "A")
+        cell = (row, col)
+    r, c = cell
+    if g[r][c] != "A":
+        raise ValueError(f"Ô khu tập kết {cell} phải là lối đi (A), đang là {g[r][c]!r}")
+    g[r][c] = "P"
+    return ["".join(x) for x in g]
+
+
 # Cấu hình mặc định cho 3 kiểu × 3 quy mô (được kiểm tra số slot trong instance.py)
 PRESETS = {
     ("grid", "small"): dict(fn="grid", blocks_x=2, blocks_y=1, island_len=6),

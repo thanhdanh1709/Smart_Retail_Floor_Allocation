@@ -1,0 +1,20 @@
+name: free_small
+layout:
+  source: preset
+  kind: free
+  scale: small
+staging: null
+level: group
+n_categories: null
+cold_slack: 0.2
+online_share: 0.3
+behavior_models:
+- SP
+- NN
+eps: 1.1
+fidelity: L1
+relocation_R: -1
+target_impulse_items: 1.5
+lam: null
+max_loops: 5
+seed: 0
