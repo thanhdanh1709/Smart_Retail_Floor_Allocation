@@ -10,6 +10,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
 
 from .. import viz  # noqa: E402
 from .contracts import StoreDesign  # noqa: E402
@@ -47,6 +48,34 @@ def write(d: StoreDesign, out) -> dict:
                      ("hourly_conflict.csv", d.report.hourly)):
         df.to_csv(out / name, index=False, encoding="utf-8")
         files[name] = out / name
+    pk = d.report.picking
+    if pk is not None:                                  # GĐ5: nhặt đơn
+        pk["policies"].to_csv(out / "picking_policies.csv", index=False, encoding="utf-8")
+        pk["avoidance"].to_csv(out / "picking_avoidance.csv", index=False)
+        w = pk["wave"]
+        pd.DataFrame({"hour": range(24), "picks_lp": w["picks_per_hour"],
+                      "picks_asap": w["picks_per_hour_asap"]}).to_csv(out / "picking_wave.csv", index=False)
+        for f in ("picking_policies.csv", "picking_avoidance.csv", "picking_wave.csv"):
+            files[f] = out / f
+        js["picking"] = {"batching": {k: v for k, v in pk["batching"].items() if k != "batches"},
+                         "wave": {k: w[k] for k in ("cost", "cost_asap", "reduction")},
+                         "zp_check": pk.get("zp_check")}
+        (out / "design.json").write_text(json.dumps(_plain(js), ensure_ascii=False, indent=2), encoding="utf-8")
+    if d.report.twoflow is not None:                    # GĐ6: mô phỏng hai luồng
+        d.report.twoflow.to_csv(out / "twoflow_sim.csv", index=False, encoding="utf-8")
+        files["twoflow_sim.csv"] = out / "twoflow_sim.csv"
+        js["twoflow_sim"] = d.report.twoflow.groupby("plan").mean(numeric_only=True).reset_index().to_dict("records")
+        (out / "design.json").write_text(json.dumps(_plain(js), ensure_ascii=False, indent=2), encoding="utf-8")
+    rb = d.plan.robust
+    if rb is not None:                                  # GĐ4: ma trận thiệt hại L[A, B] + lịch sử
+        L = rb["loss"].assign(worst=rb["loss"].max(axis=1), feasible=rb["feasible"])
+        L.to_csv(out / "loss_matrix.csv", index_label="plan", encoding="utf-8")
+        rb["seq_history"].to_csv(out / "seq_linearization.csv", index=False)
+        rb["ga_history"].to_csv(out / "ga_minimax.csv", index=False)
+        js["best_of_k"] = rb["best_of_k"]
+        js["loss_matrix"] = L.reset_index(names="plan").to_dict("records")
+        (out / "design.json").write_text(json.dumps(_plain(js), ensure_ascii=False, indent=2), encoding="utf-8")
+        files["loss_matrix.csv"] = out / "loss_matrix.csv"
     d.spec.to_yaml(out / "store.yaml")
     files["store.yaml"] = out / "store.yaml"
     fig, ax = plt.subplots(figsize=(max(6, d.layout.fp.C / 3), max(4, d.layout.fp.R / 3)))

@@ -52,7 +52,7 @@ def conflict_linear(inst: Instance, e_walk: np.ndarray) -> np.ndarray:
 def objectives(bank, perm, m: str) -> np.ndarray:
     """(Z_P, −Z_W^m, C^m) – cùng định nghĩa với metrics.py."""
     perm = np.asarray(perm, dtype=np.int64)
-    c = metrics.conflict(bank.pick_exposure(perm), bank.exposure(perm, m), bank.hours, bank.online_share)
+    c = metrics.conflict_from_dot(bank.occ_dots(perm)[m], bank.hours, bank.online_share)
     return np.array([bank.z_p(perm), -bank.z_w(perm, m), c])
 
 

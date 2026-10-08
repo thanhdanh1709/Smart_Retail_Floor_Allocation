@@ -12,6 +12,11 @@ from src.instance import save_floorplans  # noqa: E402
 
 
 def main():
+    if "--external" in sys.argv:         # v4: Open e-commerce (giá), Tesco (kiểm tra f_i), Lyon (v(ρ))
+        import json
+        from src import external
+        print(json.dumps(external.build_all(), indent=1, ensure_ascii=False))
+        return
     if "--items" in sys.argv:            # v4: chỉ dựng dữ liệu cấp món + hồ sơ giờ
         from src import items, schedule
         print("Dữ liệu cấp món ...")

@@ -33,8 +33,24 @@
 
 **Kết luận GĐ0:** giữ phương án hiệu chỉnh bằng **khớp mô-men với sự thật cách điệu** (lệch 28% – Lee et al.; độ lệch TSP – Hui et al.; kiểu đường – Larson et al.). μ chưa hiệu chỉnh được → đưa vào tập M.
 
+## Bảy bộ dữ liệu được đề xuất (kiểm tra và tải ngày 2026-10-07)
+
+| Bộ dữ liệu | Có tải được? | Giấy phép | Kích thước | Dùng cho | Kết quả |
+|---|---|---|---|---|---|
+| Instacart 2017 | Có (đã dùng từ v1) | điều khoản Kaggle/Instacart, phi thương mại | 680 MB | giỏ hàng, f_i, w_ij, món | lõi của mọi tầng |
+| HRN4Customer | **Không – không tồn tại** | – | – | – | bỏ |
+| Tesco Grocery 1.0 (Aiello et al. 2020, figshare 4769354) | Có | CC BY 4.0 | 4 MB (đã tải 3 tệp) | kiểm tra tính khái quát f_i | Spearman thứ hạng 13 nhóm Tesco–Instacart **0,80**, sai khác phân phối 0,20 (Instacart ít cá, rượu; nhiều sữa) |
+| Open e-commerce 1.0 (Berke et al. 2024, Dataverse DVN/YGLYDY) | Có | CC0 | 313 MB | giá tương đối 40 nhóm (tầng 3, độ nhạy v_i) | 34/40 nhóm có giá (351 nghìn lượt mua); Spearman với v giả định chỉ **0,49** → phải chạy độ nhạy v theo giá thật |
+| Lyon Dense Crowd (MADRAS, Zenodo 13830435) | Có | CC BY 4.0 | 34 MB | giản đồ tốc độ–mật độ cho ùn tắc (SUE, GĐ6) | 118 nghìn quan sát; tốc độ 0,76 → 0,29 m/s khi mật độ 0,6 → 3,5 người/m²; Weidmann γ = 2,24 (văn liệu 1,91). Đám đông lễ hội ≠ khách siêu thị → chỉ dùng hình dạng v(ρ)/v0 |
+| RPC (Retail Product Checkout) | Có (12,75 GB) | "Other" – xem README | 12,75 GB | – | **Không tải**: ảnh nhận dạng sản phẩm ở quầy, không có thông tin bố trí hay luồng |
+| QAPLIB | Có (đã dùng ở E1) | công khai | nhỏ | kiểm tra GA | đã có trong `data/qaplib` |
+
+Mã: `src/external.py`; dựng lại: `python -m experiments.build_data --external` → `data/processed/external/`
+(`group_prices.csv`, `tesco_check.csv`, `lyon_fd.csv`, `summary.json`). Dữ liệu thô ở `data/raw/` (ngoài git).
+
 ## Dữ liệu giá (tầng 3)
-Chưa có nguồn giá công khai phù hợp với Instacart (Dunnhumby "The Complete Journey" cần đăng ký, điều khoản cần đọc). GĐ7 dùng giả định giá/lãi theo department + phân tích độ nhạy.
+Đã có: giá trung vị theo nhóm từ Open e-commerce 1.0 (CC0) – dùng làm chỉ số giá **tương đối** (giá Amazon là giá gói online, USD).
+GĐ7: giá món m_j = chỉ số giá nhóm × hệ số trong nhóm (giả định) + phân tích độ nhạy; nhóm thiếu giá (G10–G12, G14, G25, G33) giữ giả định.
 
 ## Dữ liệu đã dựng ở GĐ0
 - `data/processed/items/items.csv`: 47.874 món; giữ món ≥ 100 lượt mua → 19.870 món, **97,3%** lượt mua.

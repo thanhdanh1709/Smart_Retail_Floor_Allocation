@@ -39,7 +39,8 @@ def test_design_l0_fast_and_reproducible(name, tmp_path):
     out = export.write(d1, tmp_path)
     js = json.loads((tmp_path / "design.json").read_text(encoding="utf-8"))
     assert js["digest"] == d1.digest() and js["kpis"]["Z_P"] == pytest.approx(d1.report.kpis["Z_P"])
-    for f in ("assignment.csv", "planogram.csv", "layout.png", "store.yaml"):
+    assert {r["plan"] for r in js["loss_matrix"]} >= {"CUR", "LIN", "SEQ", "MINIMAX"} and "best_of_k" in js
+    for f in ("assignment.csv", "planogram.csv", "layout.png", "store.yaml", "loss_matrix.csv"):
         assert (tmp_path / f).exists(), f
     assert set(out) >= {"design.json", "planogram.csv"}
 

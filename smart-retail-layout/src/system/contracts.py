@@ -19,10 +19,11 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from ..behavior import MODELS, BehaviorParams
 from ..floorplan import FloorPlan
 
 FIDELITIES = ("L0", "L1", "L2")
-KNOWN_MODELS = ("SP", "NN")              # GĐ3 thêm RL-μ, RL-A, PER, SUE
+KNOWN_MODELS = tuple(MODELS)             # SP, NN, SNK, RL, RL-A, PER, SUE (behavior.py)
 
 
 def _digest(obj) -> str:
@@ -39,10 +40,18 @@ class StoreSpec:
     n_categories: int | None = None                # None = mặc định theo quy mô
     cold_slack: float = 0.2
     online_share: float = 0.3                      # tỷ lệ đơn online / tổng lượt mua
-    behavior_models: tuple = ("SP", "NN")          # tập M
+    behavior_models: tuple = KNOWN_MODELS          # tập M
+    behavior: dict = field(default_factory=dict)   # tham số BehaviorParams (μ=None: hiệu chỉnh 28%)
     eps: float = 1.10                              # Z_P ≤ eps · Z_P(hiện trạng)
+    eps_c: float | None = 1.2                      # C^m ≤ eps_c · C^m(hiện trạng) với MỌI m (None: bỏ);
+                                                   # 1,2: gần như không mất độ bền doanh thu, dưới 1,1 regret tăng vọt
     fidelity: str = "L0"
     relocation_R: int = -1                         # số ngành được dời (−1: không giới hạn)
+    orders_per_day: float = 200.0                  # đơn online/ngày (lịch nhặt theo giờ)
+    customers_per_day: float = 1200.0              # khách tại chỗ/ngày (mô phỏng hai luồng GĐ6)
+    picker_capacity: float = 30.0                  # đơn nhặt được mỗi giờ (mọi người nhặt cộng lại)
+    delivery_window_h: int = 3                     # đơn đặt giờ h phải nhặt trước h + Δ
+    batch_size: int = 3                            # số đơn tối đa một xe nhặt
     target_impulse_items: float = 1.5              # hiệu chỉnh λ
     lam: float | None = None                       # None = hiệu chỉnh bằng mô phỏng
     max_loops: int = 5                             # vòng ghép T2 ↔ T3
@@ -57,10 +66,15 @@ class StoreSpec:
         bad = set(self.behavior_models) - set(KNOWN_MODELS)
         if bad or not self.behavior_models:
             raise ValueError(f"Mô hình hành vi chưa hỗ trợ: {sorted(bad)} (có: {KNOWN_MODELS})")
+        bad = set(self.behavior) - {f.name for f in fields(BehaviorParams)}
+        if bad:
+            raise ValueError(f"Tham số hành vi lạ: {sorted(bad)}")
         if self.layout.get("source", "preset") not in ("preset", "file"):
             raise ValueError("layout.source phải là preset | file")
         if not 0 <= self.online_share < 1 or self.eps < 1:
             raise ValueError("cần 0 ≤ online_share < 1 và eps ≥ 1")
+        if self.eps_c is not None and self.eps_c <= 0:
+            raise ValueError("eps_c phải > 0 (hoặc None để bỏ ràng buộc chạm mặt)")
 
     def to_dict(self) -> dict:
         d = asdict(self)
@@ -134,10 +148,26 @@ class FlowBank:
     hours: pd.DataFrame
     online_share: float
     values: np.ndarray = None
+    calibration: dict = field(default_factory=dict)   # m -> {mu, detour, perimeter_share, ...}
 
     def __post_init__(self):
         if self.values is None:
             self.values = np.asarray(self.inst.v[: self.inst.n], float).copy()
+        self._dots: dict = {}            # perm -> {m: chỉ số chiếm chỗ} (không phụ thuộc v → dùng chung khi clone)
+
+    def occ_dots(self, perm) -> dict:
+        """Σ_k o_W^m·o_P/|vùng k| cho mọi m – phần phụ thuộc sơ đồ của chỉ số chạm mặt (metrics.occupancy_dot)."""
+        from . import metrics
+        perm = np.asarray(perm, dtype=np.int64)
+        key = perm.tobytes()
+        hit = self._dots.get(key)
+        if hit is None:
+            if len(self._dots) > 50_000:
+                self._dots.clear()
+            e_pick = self.pick_exposure(perm)
+            hit = self._dots[key] = {m: metrics.occupancy_dot(self, perm, e_pick, self.exposure(perm, m), m)
+                                     for m in self.models}
+        return hit
 
     def set_values(self, v) -> None:
         self.values = np.asarray(v, float).copy()
@@ -187,6 +217,7 @@ class CategoryPlan:
     violations: dict
     method: str = ""
     front: dict | None = None                      # tập Pareto (Z_P, −Z_W^m, C^m) theo định tuyến, nếu có
+    robust: dict | None = None                     # GĐ4: ma trận L, khả thi từng hàng, best-of-k, lịch sử SEQ/GA
 
 
 # ------------------------------------------------------------------ tầng 3
@@ -218,6 +249,8 @@ class FlowReport:
     per_model: pd.DataFrame
     hourly: pd.DataFrame                           # chạm mặt tương đối theo giờ
     simulation: pd.DataFrame | None = None         # mức L1/L2
+    picking: dict | None = None                    # GĐ5: chính sách định tuyến, gộp đơn, tránh khách, lịch theo giờ
+    twoflow: pd.DataFrame | None = None            # GĐ6: mô phỏng hai luồng theo thời gian (mỗi dòng: sơ đồ × ngày)
 
 
 @dataclass

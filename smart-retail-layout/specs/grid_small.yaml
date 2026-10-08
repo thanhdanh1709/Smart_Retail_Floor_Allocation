@@ -11,6 +11,12 @@ online_share: 0.3
 behavior_models:
 - SP
 - NN
+- SNK
+- RL
+- RL-A
+- PER
+- SUE
+behavior: {}
 eps: 1.1
 fidelity: L1
 relocation_R: -1

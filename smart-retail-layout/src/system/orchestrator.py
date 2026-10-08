@@ -50,7 +50,7 @@ def _data_manifest(level: str) -> dict:
 class System:
     def __init__(self, t1=None, t2=None, t3=None, t4=None, cache: Cache | None = None):
         self.t1 = t1 or Ly.PresetLayout()
-        self.t2 = t2 or Ly.RouteLocalSearch()
+        self.t2 = t2 or Ly.RobustT2()
         self.t3 = t3 or Ly.FrequencyPlanogram()
         self.t4 = t4 or Ly.AnalyticFlow()
         self.cache = cache or Cache()
@@ -91,7 +91,7 @@ class System:
         if i0 <= 1:
             key = digest("flowbank", layout.digest(), spec.level, spec.n_categories, spec.behavior_models,
                          fid.baskets, fid.lam_customers, spec.lam, spec.target_impulse_items, spec.seed,
-                         spec.relocation_R, spec.cold_slack, spec.layout)
+                         spec.relocation_R, spec.cold_slack, spec.layout, spec.behavior)
 
             def build_bank():
                 inst = Ly.make_problem(spec, layout)

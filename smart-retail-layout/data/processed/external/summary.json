@@ -1,0 +1,20 @@
+{
+  "prices": {
+    "groups_with_price": 34,
+    "n_purchases": 351201,
+    "spearman_vs_assumed_v": 0.48675346296486044
+  },
+  "tesco": {
+    "spearman": 0.8021978021978022,
+    "total_variation": 0.20481820203712506,
+    "n_categories": 13
+  },
+  "lyon": {
+    "v0": 0.778442254281414,
+    "gamma": 2.241954576866463,
+    "rho_max": 5.4,
+    "n_obs": 118468,
+    "spearman_speed_density": -0.5176994325395994,
+    "radius_m": 1.0
+  }
+}
