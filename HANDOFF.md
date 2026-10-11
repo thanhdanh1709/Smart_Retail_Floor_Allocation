@@ -307,3 +307,12 @@ Main risk: the plan names three objectives but not every operational input is pr
 - Resolution: use a per-command author identity `Codex <codex@users.noreply.github.com>` for this repository commit only. This keeps global and repository Git configuration unchanged.
 - Work in progress: record this blocker, restage `HANDOFF.md`, retry the commit, then push to `origin/main` and verify the remote hash.
 - Exact next action: stage the handoff checkpoint, commit the already reviewed 56-file set with the one-time Codex identity, and push after rechecking remote `main`.
+
+## Current checkpoint — Main project commit created (2026-10-11)
+
+- Current task: push the user-requested repository changes to `origin/main`, excluding `.playwright-mcp/`. Current agent: Codex. Branch: `main`. Last verified commit: `d9e4b080d2dffbfd677e14c304496296254f1c02`.
+- Created commit `d9e4b080d2dffbfd677e14c304496296254f1c02` (`feat: add GĐ0-GĐ2 implementation and project artifacts`) with 56 files changed: all staged tracked edits and non-ignored additions outside `.playwright-mcp/`. Staged whitespace check passed and `PLAYWRIGHT_STAGED_COUNT=0`.
+- Commit author was set per command to `Codex <codex@users.noreply.github.com>` because no Git identity was configured; no persistent Git config was changed.
+- `.playwright-mcp/` remains untracked and excluded. The ~700 MB `data/raw/` dataset and generated caches remain ignored by repository rules.
+- Work in progress: record the created commit in this handoff, then push `main` and verify the remote ref.
+- Exact next action: push the current `main` commit to `origin` after confirming remote `main` still points to parent `23d1f2e002fdb38f3ad6c313fb9764a77a2281ca`.
