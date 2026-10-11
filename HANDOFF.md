@@ -316,3 +316,13 @@ Main risk: the plan names three objectives but not every operational input is pr
 - `.playwright-mcp/` remains untracked and excluded. The ~700 MB `data/raw/` dataset and generated caches remain ignored by repository rules.
 - Work in progress: record the created commit in this handoff, then push `main` and verify the remote ref.
 - Exact next action: push the current `main` commit to `origin` after confirming remote `main` still points to parent `23d1f2e002fdb38f3ad6c313fb9764a77a2281ca`.
+
+## Final checkpoint — Git publication verified (2026-10-11)
+
+- Current task: publish repository changes requested by the user, excluding `.playwright-mcp/`. Current agent: Codex. Branch: `main`. Last verified local and remote commit: `30cda493f9fe765d59aa298d5ef0feb9ec8cd4b1`.
+- Completed and pushed: `d9e4b080d2dffbfd677e14c304496296254f1c02` contains the 56-file project set; `30cda493f9fe765d59aa298d5ef0feb9ec8cd4b1` records the Git publication checkpoint. Push output confirmed fast-forward `23d1f2e..30cda49`; follow-up `ls-remote` matched local HEAD exactly.
+- Exclusion check: `PLAYWRIGHT_TRACKED_COUNT=0`. `.playwright-mcp/` remains untracked locally and was not uploaded. Worktree after push showed only `?? .playwright-mcp/`.
+- Git ignore scope: `smart-retail-layout/data/raw/` (the approximately 700 MB source dataset), Python/Numba caches, pytest cache, and Streamlit secrets remain excluded under the existing `.gitignore`; no ignored files were force-added.
+- No project tests were run for this Git-only request. The previous GĐ2 completion checkpoint contains the latest project verification results.
+- Work in progress: this final publication checkpoint needs to be committed and pushed, then `origin/main` should be checked against local HEAD.
+- Exact next action: commit this handoff update, push `main`, and verify that the remote ref equals local HEAD with zero tracked `.playwright-mcp` paths.
