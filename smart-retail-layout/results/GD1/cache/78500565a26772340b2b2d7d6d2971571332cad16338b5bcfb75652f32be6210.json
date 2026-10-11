@@ -1,0 +1,1199 @@
+{
+  "case_id": "grid_small_l0",
+  "category_plan": {
+    "assignments": [
+      {
+        "category_id": "G01",
+        "floorplan_slot_index": 18,
+        "instance_slot_index": 18,
+        "slot_id": "K019"
+      },
+      {
+        "category_id": "G02",
+        "floorplan_slot_index": 16,
+        "instance_slot_index": 16,
+        "slot_id": "K017"
+      },
+      {
+        "category_id": "G06",
+        "floorplan_slot_index": 7,
+        "instance_slot_index": 7,
+        "slot_id": "K008"
+      },
+      {
+        "category_id": "G07",
+        "floorplan_slot_index": 8,
+        "instance_slot_index": 8,
+        "slot_id": "K009"
+      },
+      {
+        "category_id": "G08",
+        "floorplan_slot_index": 6,
+        "instance_slot_index": 6,
+        "slot_id": "K007"
+      },
+      {
+        "category_id": "G14",
+        "floorplan_slot_index": 24,
+        "instance_slot_index": 24,
+        "slot_id": "K025"
+      },
+      {
+        "category_id": "G15",
+        "floorplan_slot_index": 4,
+        "instance_slot_index": 4,
+        "slot_id": "K005"
+      },
+      {
+        "category_id": "G20",
+        "floorplan_slot_index": 17,
+        "instance_slot_index": 17,
+        "slot_id": "K018"
+      },
+      {
+        "category_id": "G26",
+        "floorplan_slot_index": 20,
+        "instance_slot_index": 20,
+        "slot_id": "K021"
+      },
+      {
+        "category_id": "G30",
+        "floorplan_slot_index": 5,
+        "instance_slot_index": 5,
+        "slot_id": "K006"
+      }
+    ],
+    "diagnostics": {
+      "candidate_violations": {
+        "compat": 0,
+        "relocation_excess": 0,
+        "separate": 0
+      },
+      "ga_evals": 470,
+      "ga_fitness_penalized": 3.6346051394776646,
+      "ga_gens": 25,
+      "ga_z_penalized": 0.20395932521799542,
+      "payoff_exact": false,
+      "payoff_method": "heuristic"
+    },
+    "feasible": true,
+    "layout_id": "grid_small_l0",
+    "objective_direction": "min",
+    "selection_source": "ga",
+    "solver_status": "FEASIBLE",
+    "violations": {
+      "compat": 0,
+      "relocation_excess": 0,
+      "separate": 0
+    },
+    "weighted_objective": 0.20395932521799542,
+    "z1": 117.69432020548584,
+    "z2": 0.5229703840561252
+  },
+  "content_hash": "aa15beb3a03b400a9665ac7162e9340a4447b92c25a4ba069e4c69d5bd407e8b",
+  "demand": {
+    "basket_count": 190149,
+    "category_ids": [
+      "G01",
+      "G02",
+      "G06",
+      "G07",
+      "G08",
+      "G14",
+      "G15",
+      "G20",
+      "G26",
+      "G30"
+    ],
+    "data_sha256": "602ef2e1e71f3dbb8fd22a1a3fb6b496268b3ac05bd040c1b961ce4a3e75eb32",
+    "level": "group",
+    "provenance_status": "processed_raw_unverified",
+    "source_type": "processed"
+  },
+  "flow_report": {
+    "data_class": "simulated_proxy",
+    "metrics": [
+      {
+        "data_class": "simulated_proxy",
+        "direction": "min",
+        "meaning": "Mean simulated customer walking distance.",
+        "metric_id": "distance_m",
+        "null_reason": null,
+        "source": "Simulator.distance_m",
+        "unit": "m/customer",
+        "value": 30.325
+      },
+      {
+        "data_class": "simulated_proxy",
+        "direction": "min",
+        "meaning": "Mean simulated trip time; converted from v3 minutes.",
+        "metric_id": "trip_time_s",
+        "null_reason": null,
+        "source": "Simulator.trip_time_min",
+        "unit": "s/customer",
+        "value": 123.29650993136909
+      },
+      {
+        "data_class": "simulated_proxy",
+        "direction": "descriptive",
+        "meaning": "Mean number of exposed slots.",
+        "metric_id": "exposed_slots",
+        "null_reason": null,
+        "source": "Simulator.exposed_slots",
+        "unit": "slots/customer",
+        "value": 5.55
+      },
+      {
+        "data_class": "simulated_proxy",
+        "direction": "max_proxy",
+        "meaning": "Mean simulated impulse items, using v3 proxy behavior.",
+        "metric_id": "impulse_items",
+        "null_reason": null,
+        "source": "Simulator.impulse_items",
+        "unit": "items/customer",
+        "value": 0.2125
+      },
+      {
+        "data_class": "simulated_proxy",
+        "direction": "max_proxy",
+        "meaning": "Mean impulse_revenue field from v3; this is not currency or observed revenue.",
+        "metric_id": "impulse_value_proxy",
+        "null_reason": null,
+        "source": "Simulator.impulse_revenue",
+        "unit": "arbitrary_proxy_units/customer",
+        "value": 0.085
+      },
+      {
+        "data_class": "simulated_proxy",
+        "direction": "descriptive",
+        "meaning": "Mean basket value under the existing assumed category-value model.",
+        "metric_id": "basket_value_proxy",
+        "null_reason": null,
+        "source": "Simulator.basket_value",
+        "unit": "arbitrary_proxy_units/customer",
+        "value": 1.73625
+      },
+      {
+        "data_class": "simulated_proxy",
+        "direction": "min",
+        "meaning": "Number of cells exceeding the simulator congestion threshold.",
+        "metric_id": "congestion_cells",
+        "null_reason": null,
+        "source": "Simulator.congestion_cells",
+        "unit": "cells",
+        "value": 4.0
+      },
+      {
+        "data_class": "simulated_proxy",
+        "direction": "descriptive",
+        "meaning": "Mean planned basket items.",
+        "metric_id": "planned_items",
+        "null_reason": null,
+        "source": "Simulator.planned_items",
+        "unit": "items/customer",
+        "value": 3.75
+      }
+    ],
+    "model": "v3_customer_simulation",
+    "picker_flow_status": "not_implemented",
+    "sample_size": 80,
+    "simulation_seed": 20261011
+  },
+  "infeasible_reason": null,
+  "item_fixture": {
+    "data_class": "synthetic_fixture",
+    "fixture_id": "synthetic_frequency_v1_grid_small_l0_20261011",
+    "generator_version": 1,
+    "products": [
+      {
+        "category_id": "G01",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.43089719392329345,
+        "pricing_status": "unknown",
+        "rank": 1,
+        "sku_id": "SYN-G01-001"
+      },
+      {
+        "category_id": "G01",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.032901333704437034,
+        "pricing_status": "unknown",
+        "rank": 3,
+        "sku_id": "SYN-G01-002"
+      },
+      {
+        "category_id": "G01",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.32739239399717934,
+        "pricing_status": "unknown",
+        "rank": 2,
+        "sku_id": "SYN-G01-003"
+      },
+      {
+        "category_id": "G02",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.7285211010329647,
+        "pricing_status": "unknown",
+        "rank": 1,
+        "sku_id": "SYN-G02-001"
+      },
+      {
+        "category_id": "G02",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.44723699883434076,
+        "pricing_status": "unknown",
+        "rank": 2,
+        "sku_id": "SYN-G02-002"
+      },
+      {
+        "category_id": "G02",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.134907045742487,
+        "pricing_status": "unknown",
+        "rank": 3,
+        "sku_id": "SYN-G02-003"
+      },
+      {
+        "category_id": "G06",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.9379968744604471,
+        "pricing_status": "unknown",
+        "rank": 1,
+        "sku_id": "SYN-G06-001"
+      },
+      {
+        "category_id": "G06",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.8196552646844099,
+        "pricing_status": "unknown",
+        "rank": 2,
+        "sku_id": "SYN-G06-002"
+      },
+      {
+        "category_id": "G06",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.6853123297105087,
+        "pricing_status": "unknown",
+        "rank": 3,
+        "sku_id": "SYN-G06-003"
+      },
+      {
+        "category_id": "G07",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.6480841569316209,
+        "pricing_status": "unknown",
+        "rank": 2,
+        "sku_id": "SYN-G07-001"
+      },
+      {
+        "category_id": "G07",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.06625585404968462,
+        "pricing_status": "unknown",
+        "rank": 3,
+        "sku_id": "SYN-G07-002"
+      },
+      {
+        "category_id": "G07",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.6737454816063685,
+        "pricing_status": "unknown",
+        "rank": 1,
+        "sku_id": "SYN-G07-003"
+      },
+      {
+        "category_id": "G08",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.8794102467653545,
+        "pricing_status": "unknown",
+        "rank": 1,
+        "sku_id": "SYN-G08-001"
+      },
+      {
+        "category_id": "G08",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.7739708041204455,
+        "pricing_status": "unknown",
+        "rank": 2,
+        "sku_id": "SYN-G08-002"
+      },
+      {
+        "category_id": "G08",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.43983883131145685,
+        "pricing_status": "unknown",
+        "rank": 3,
+        "sku_id": "SYN-G08-003"
+      },
+      {
+        "category_id": "G14",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.7234929180102776,
+        "pricing_status": "unknown",
+        "rank": 2,
+        "sku_id": "SYN-G14-001"
+      },
+      {
+        "category_id": "G14",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.6597242713957847,
+        "pricing_status": "unknown",
+        "rank": 3,
+        "sku_id": "SYN-G14-002"
+      },
+      {
+        "category_id": "G14",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.7884527751191166,
+        "pricing_status": "unknown",
+        "rank": 1,
+        "sku_id": "SYN-G14-003"
+      },
+      {
+        "category_id": "G15",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.2722559939026923,
+        "pricing_status": "unknown",
+        "rank": 2,
+        "sku_id": "SYN-G15-001"
+      },
+      {
+        "category_id": "G15",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.21340496780601267,
+        "pricing_status": "unknown",
+        "rank": 3,
+        "sku_id": "SYN-G15-002"
+      },
+      {
+        "category_id": "G15",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.7179645245187486,
+        "pricing_status": "unknown",
+        "rank": 1,
+        "sku_id": "SYN-G15-003"
+      },
+      {
+        "category_id": "G20",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.6786992463663675,
+        "pricing_status": "unknown",
+        "rank": 2,
+        "sku_id": "SYN-G20-001"
+      },
+      {
+        "category_id": "G20",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.14933206418212838,
+        "pricing_status": "unknown",
+        "rank": 3,
+        "sku_id": "SYN-G20-002"
+      },
+      {
+        "category_id": "G20",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.9256798536434695,
+        "pricing_status": "unknown",
+        "rank": 1,
+        "sku_id": "SYN-G20-003"
+      },
+      {
+        "category_id": "G26",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.1263159609903657,
+        "pricing_status": "unknown",
+        "rank": 3,
+        "sku_id": "SYN-G26-001"
+      },
+      {
+        "category_id": "G26",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.4877627507685442,
+        "pricing_status": "unknown",
+        "rank": 1,
+        "sku_id": "SYN-G26-002"
+      },
+      {
+        "category_id": "G26",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.4503860367558425,
+        "pricing_status": "unknown",
+        "rank": 2,
+        "sku_id": "SYN-G26-003"
+      },
+      {
+        "category_id": "G30",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.9585648374574477,
+        "pricing_status": "unknown",
+        "rank": 1,
+        "sku_id": "SYN-G30-001"
+      },
+      {
+        "category_id": "G30",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.7115751403731533,
+        "pricing_status": "unknown",
+        "rank": 2,
+        "sku_id": "SYN-G30-002"
+      },
+      {
+        "category_id": "G30",
+        "data_class": "synthetic_fixture",
+        "frequency_weight": 0.3845022457548096,
+        "pricing_status": "unknown",
+        "rank": 3,
+        "sku_id": "SYN-G30-003"
+      }
+    ],
+    "provenance": "Generated synthetic frequency weights for contract integration only; not observed SKU demand, capacity, price, sales, or physical planogram data.",
+    "seed": 20261011
+  },
+  "layout": {
+    "cell_size_m": 1.0,
+    "grid": [
+      "XXXXXXXXXXXXXXXXXXXXXX",
+      "XSSSSSSSSSSSSSRRRRRRSX",
+      "XSAAAAAAAAAAAAAAAAAARX",
+      "XSAAAAAAAAAAAAAAAAAARX",
+      "XSAASSSSSSAASSSSSSAARX",
+      "XSAAAAAAAAAAAAAAAAAARX",
+      "XAAAAAAAAAAAAAAAAAAAAX",
+      "XAAAAAAAAAAAAAAAAAAAAX",
+      "XAAAAAAAAAACACACACAAAX",
+      "XXEXXXXXXXXXXXXXXXXXXX"
+    ],
+    "grid_sha256": "0afd184ab3b1b672bd1fa6735cfde0052e723e19b91fa5e04751551176c02b3c",
+    "layout_id": "grid_small_l0",
+    "length_unit": "m",
+    "slots": [
+      {
+        "access_cell": [
+          2,
+          2
+        ],
+        "cold": false,
+        "fp_slot_index": 0,
+        "slot_id": "K001"
+      },
+      {
+        "access_cell": [
+          2,
+          4
+        ],
+        "cold": false,
+        "fp_slot_index": 1,
+        "slot_id": "K002"
+      },
+      {
+        "access_cell": [
+          2,
+          6
+        ],
+        "cold": false,
+        "fp_slot_index": 2,
+        "slot_id": "K003"
+      },
+      {
+        "access_cell": [
+          2,
+          8
+        ],
+        "cold": false,
+        "fp_slot_index": 3,
+        "slot_id": "K004"
+      },
+      {
+        "access_cell": [
+          2,
+          10
+        ],
+        "cold": false,
+        "fp_slot_index": 4,
+        "slot_id": "K005"
+      },
+      {
+        "access_cell": [
+          2,
+          12
+        ],
+        "cold": false,
+        "fp_slot_index": 5,
+        "slot_id": "K006"
+      },
+      {
+        "access_cell": [
+          2,
+          14
+        ],
+        "cold": true,
+        "fp_slot_index": 6,
+        "slot_id": "K007"
+      },
+      {
+        "access_cell": [
+          2,
+          16
+        ],
+        "cold": true,
+        "fp_slot_index": 7,
+        "slot_id": "K008"
+      },
+      {
+        "access_cell": [
+          2,
+          18
+        ],
+        "cold": true,
+        "fp_slot_index": 8,
+        "slot_id": "K009"
+      },
+      {
+        "access_cell": [
+          2,
+          2
+        ],
+        "cold": false,
+        "fp_slot_index": 9,
+        "slot_id": "K010"
+      },
+      {
+        "access_cell": [
+          2,
+          19
+        ],
+        "cold": true,
+        "fp_slot_index": 10,
+        "slot_id": "K011"
+      },
+      {
+        "access_cell": [
+          4,
+          2
+        ],
+        "cold": false,
+        "fp_slot_index": 11,
+        "slot_id": "K012"
+      },
+      {
+        "access_cell": [
+          3,
+          4
+        ],
+        "cold": false,
+        "fp_slot_index": 12,
+        "slot_id": "K013"
+      },
+      {
+        "access_cell": [
+          5,
+          4
+        ],
+        "cold": false,
+        "fp_slot_index": 13,
+        "slot_id": "K014"
+      },
+      {
+        "access_cell": [
+          3,
+          6
+        ],
+        "cold": false,
+        "fp_slot_index": 14,
+        "slot_id": "K015"
+      },
+      {
+        "access_cell": [
+          5,
+          6
+        ],
+        "cold": false,
+        "fp_slot_index": 15,
+        "slot_id": "K016"
+      },
+      {
+        "access_cell": [
+          3,
+          8
+        ],
+        "cold": false,
+        "fp_slot_index": 16,
+        "slot_id": "K017"
+      },
+      {
+        "access_cell": [
+          5,
+          8
+        ],
+        "cold": false,
+        "fp_slot_index": 17,
+        "slot_id": "K018"
+      },
+      {
+        "access_cell": [
+          3,
+          12
+        ],
+        "cold": false,
+        "fp_slot_index": 18,
+        "slot_id": "K019"
+      },
+      {
+        "access_cell": [
+          5,
+          12
+        ],
+        "cold": false,
+        "fp_slot_index": 19,
+        "slot_id": "K020"
+      },
+      {
+        "access_cell": [
+          3,
+          14
+        ],
+        "cold": false,
+        "fp_slot_index": 20,
+        "slot_id": "K021"
+      },
+      {
+        "access_cell": [
+          5,
+          14
+        ],
+        "cold": false,
+        "fp_slot_index": 21,
+        "slot_id": "K022"
+      },
+      {
+        "access_cell": [
+          3,
+          16
+        ],
+        "cold": false,
+        "fp_slot_index": 22,
+        "slot_id": "K023"
+      },
+      {
+        "access_cell": [
+          5,
+          16
+        ],
+        "cold": false,
+        "fp_slot_index": 23,
+        "slot_id": "K024"
+      },
+      {
+        "access_cell": [
+          4,
+          19
+        ],
+        "cold": true,
+        "fp_slot_index": 24,
+        "slot_id": "K025"
+      }
+    ]
+  },
+  "manifest": {
+    "cache_hit": false,
+    "cache_key": "78500565a26772340b2b2d7d6d2971571332cad16338b5bcfb75652f32be6210",
+    "data_sha256": {
+      "group/baskets.npz": "06952d61af3abe47660030d04dd39357eb19644e53aaad629067864fac05a5d4",
+      "group/categories.csv": "3477c480de1d76fc8b32d416e585a78d0f10423d288cd47c433318865505b3ad",
+      "group/f.npy": "5e4e481323bd7ada0233d0b9d7a4ffe4d81dba294b3a11be6cd905fed1bd1f61",
+      "group/p.npy": "82925d16f470b927efd7312985a21d2fe8983431c7f4c62b21ef8c15d6743004",
+      "group/v.npy": "26c9dc102a5d4b6805cf9a849d4ec9c533cccbe27ede76059f157538fc09e3d1",
+      "group/w.npy": "548c80ea2b97e8f43d81de62ff4171b6d4c392add7c0e16aca88d6192d254c8d",
+      "layout/effective_grid": "0afd184ab3b1b672bd1fa6735cfde0052e723e19b91fa5e04751551176c02b3c"
+    },
+    "effective_config": {
+      "algorithm_config": {
+        "optimizer": {
+          "crossover": "ox",
+          "elite": 2,
+          "greedy_frac": 0.1,
+          "immigrant_every": 20,
+          "immigrant_frac": 0.5,
+          "ls_frac": 0.0,
+          "ls_max_moves": 0,
+          "max_gens": 25,
+          "mutation": "swap",
+          "pc": 0.9,
+          "pm": 0.2,
+          "pop_size": 20,
+          "rho": 10.0,
+          "seed": 20261011,
+          "stall_gens": 15,
+          "time_limit": 0.0,
+          "tournament_k": 3
+        },
+        "payoff_ga": {
+          "crossover": "ox",
+          "elite": 2,
+          "greedy_frac": 0.1,
+          "immigrant_every": 20,
+          "immigrant_frac": 0.5,
+          "ls_frac": 0.0,
+          "ls_max_moves": 0,
+          "max_gens": 15,
+          "mutation": "swap",
+          "pc": 0.9,
+          "pm": 0.2,
+          "pop_size": 16,
+          "rho": 10.0,
+          "seed": 20261011,
+          "stall_gens": 10,
+          "time_limit": 0.0,
+          "tournament_k": 3
+        },
+        "payoff_method": "heuristic",
+        "simulation": {
+          "arrivals_per_hour": 120.0,
+          "bucket_s": 30.0,
+          "congestion_threshold": 4,
+          "lam": 0.05,
+          "mix_tsp": 0.7,
+          "n_customers": 80,
+          "p_scale": 1.0,
+          "pick_time_s": 8.0,
+          "seed": 20261011,
+          "sigma": 0.6,
+          "speed": 1.0,
+          "strategy": "nn"
+        }
+      },
+      "effective_grid": [
+        "XXXXXXXXXXXXXXXXXXXXXX",
+        "XSSSSSSSSSSSSSRRRRRRSX",
+        "XSAAAAAAAAAAAAAAAAAARX",
+        "XSAAAAAAAAAAAAAAAAAARX",
+        "XSAASSSSSSAASSSSSSAARX",
+        "XSAAAAAAAAAAAAAAAAAARX",
+        "XAAAAAAAAAAAAAAAAAAAAX",
+        "XAAAAAAAAAAAAAAAAAAAAX",
+        "XAAAAAAAAAACACACACAAAX",
+        "XXEXXXXXXXXXXXXXXXXXXX"
+      ],
+      "execution_profile": "quick",
+      "pickup_configured": false,
+      "spec": {
+        "case_id": "grid_small_l0",
+        "categories": {
+          "fixed": {},
+          "n_categories": 10,
+          "relocation_budget": -1,
+          "restrict_slots": false,
+          "separation": "default"
+        },
+        "data": {
+          "basket_source": "processed",
+          "level": "group",
+          "processed_root": "data/processed",
+          "provenance_status": "processed_raw_unverified",
+          "source_type": "processed"
+        },
+        "execution_mode": "v3_bridge",
+        "fidelity": "L0",
+        "item_fixture": {
+          "enabled": true,
+          "generator_version": 1,
+          "items_per_category": 3,
+          "kind": "synthetic_frequency_rank"
+        },
+        "layout": {
+          "cell_size_m": 1.0,
+          "grid_file": "",
+          "kind": "grid",
+          "pickup_cell": null,
+          "scale": "small",
+          "source": "preset"
+        },
+        "optimizer": {
+          "alpha": 0.5,
+          "ga": {
+            "ls_frac": 0.0,
+            "max_gens": 25,
+            "method": "ga_weighted",
+            "pop_size": 20,
+            "stall_gens": 15,
+            "time_limit": 0.0
+          },
+          "method": "ga_weighted",
+          "payoff": {
+            "ls_frac": 0.0,
+            "max_gens": 15,
+            "method": "heuristic",
+            "pop_size": 16,
+            "stall_gens": 10,
+            "time_limit": 0.0
+          }
+        },
+        "output": {
+          "include_heatmaps": false
+        },
+        "schema_version": "1.0",
+        "seed": 20261011,
+        "simulation": {
+          "calibration": "fixed_assumption",
+          "lam": 0.05,
+          "n_customers": 80,
+          "seed_offset": 0,
+          "speed_mps": 1.0,
+          "strategy": "nn"
+        }
+      },
+      "t3_kind": "synthetic_frequency_rank",
+      "t4_method": "v3_customer_simulation"
+    },
+    "environment": {
+      "PyYAML": "6.0.3",
+      "machine": "AMD64",
+      "numba": "0.64.0",
+      "numpy": "2.2.6",
+      "pandas": "2.3.3",
+      "platform": "Windows",
+      "python": "3.12.10",
+      "scipy": "1.15.3"
+    },
+    "git_sha": "23d1f2e002fdb38f3ad6c313fb9764a77a2281ca",
+    "input_hash": "a2ee47dec16392a81b16f42f2953553f5c0d261a01d86a80951520833bf15dc0",
+    "runtime_s": 0.39663329999893904,
+    "schema_version": "1.0",
+    "seed": 20261011,
+    "source_fingerprint": "a316549180a204d85637f1fdd06cdf9928dc3ba5f6052a1b0c470f59434c5696",
+    "timestamp_utc": "2026-10-11T07:39:20+00:00"
+  },
+  "metrics": [
+    {
+      "data_class": "model_proxy",
+      "direction": "min",
+      "meaning": "QAP weighted-distance surrogate; not simulated customer distance in metres.",
+      "metric_id": "z1_distance_proxy",
+      "null_reason": null,
+      "source": "Instance.z1",
+      "unit": "model_cost_proxy",
+      "value": 117.69432020548584
+    },
+    {
+      "data_class": "model_proxy",
+      "direction": "max",
+      "meaning": "QAP impulse-value surrogate based on assumed category values.",
+      "metric_id": "z2_impulse_value_proxy",
+      "null_reason": null,
+      "source": "Instance.z2",
+      "unit": "arbitrary_proxy_units",
+      "value": 0.5229703840561252
+    },
+    {
+      "data_class": "model_proxy",
+      "direction": "min",
+      "meaning": "Weighted v3 objective after heuristic payoff normalization; GA penalty is reported separately.",
+      "metric_id": "weighted_objective",
+      "null_reason": null,
+      "source": "Instance.z",
+      "unit": "normalized_objective_score",
+      "value": 0.20395932521799542
+    },
+    {
+      "data_class": "simulated_proxy",
+      "direction": "min",
+      "meaning": "Mean simulated customer walking distance.",
+      "metric_id": "distance_m",
+      "null_reason": null,
+      "source": "Simulator.distance_m",
+      "unit": "m/customer",
+      "value": 30.325
+    },
+    {
+      "data_class": "simulated_proxy",
+      "direction": "min",
+      "meaning": "Mean simulated trip time; converted from v3 minutes.",
+      "metric_id": "trip_time_s",
+      "null_reason": null,
+      "source": "Simulator.trip_time_min",
+      "unit": "s/customer",
+      "value": 123.29650993136909
+    },
+    {
+      "data_class": "simulated_proxy",
+      "direction": "descriptive",
+      "meaning": "Mean number of exposed slots.",
+      "metric_id": "exposed_slots",
+      "null_reason": null,
+      "source": "Simulator.exposed_slots",
+      "unit": "slots/customer",
+      "value": 5.55
+    },
+    {
+      "data_class": "simulated_proxy",
+      "direction": "max_proxy",
+      "meaning": "Mean simulated impulse items, using v3 proxy behavior.",
+      "metric_id": "impulse_items",
+      "null_reason": null,
+      "source": "Simulator.impulse_items",
+      "unit": "items/customer",
+      "value": 0.2125
+    },
+    {
+      "data_class": "simulated_proxy",
+      "direction": "max_proxy",
+      "meaning": "Mean impulse_revenue field from v3; this is not currency or observed revenue.",
+      "metric_id": "impulse_value_proxy",
+      "null_reason": null,
+      "source": "Simulator.impulse_revenue",
+      "unit": "arbitrary_proxy_units/customer",
+      "value": 0.085
+    },
+    {
+      "data_class": "simulated_proxy",
+      "direction": "descriptive",
+      "meaning": "Mean basket value under the existing assumed category-value model.",
+      "metric_id": "basket_value_proxy",
+      "null_reason": null,
+      "source": "Simulator.basket_value",
+      "unit": "arbitrary_proxy_units/customer",
+      "value": 1.73625
+    },
+    {
+      "data_class": "simulated_proxy",
+      "direction": "min",
+      "meaning": "Number of cells exceeding the simulator congestion threshold.",
+      "metric_id": "congestion_cells",
+      "null_reason": null,
+      "source": "Simulator.congestion_cells",
+      "unit": "cells",
+      "value": 4.0
+    },
+    {
+      "data_class": "simulated_proxy",
+      "direction": "descriptive",
+      "meaning": "Mean planned basket items.",
+      "metric_id": "planned_items",
+      "null_reason": null,
+      "source": "Simulator.planned_items",
+      "unit": "items/customer",
+      "value": 3.75
+    }
+  ],
+  "planogram": {
+    "data_class": "synthetic_fixture",
+    "feedback_status": "not_implemented",
+    "layout_id": "grid_small_l0",
+    "method": "synthetic_frequency_rank",
+    "physical_validated": false,
+    "placements": [
+      {
+        "category_id": "G01",
+        "rank": 1,
+        "sku_id": "SYN-G01-001",
+        "slot_id": "K019",
+        "virtual_position": 1
+      },
+      {
+        "category_id": "G01",
+        "rank": 2,
+        "sku_id": "SYN-G01-003",
+        "slot_id": "K019",
+        "virtual_position": 2
+      },
+      {
+        "category_id": "G01",
+        "rank": 3,
+        "sku_id": "SYN-G01-002",
+        "slot_id": "K019",
+        "virtual_position": 3
+      },
+      {
+        "category_id": "G02",
+        "rank": 1,
+        "sku_id": "SYN-G02-001",
+        "slot_id": "K017",
+        "virtual_position": 1
+      },
+      {
+        "category_id": "G02",
+        "rank": 2,
+        "sku_id": "SYN-G02-002",
+        "slot_id": "K017",
+        "virtual_position": 2
+      },
+      {
+        "category_id": "G02",
+        "rank": 3,
+        "sku_id": "SYN-G02-003",
+        "slot_id": "K017",
+        "virtual_position": 3
+      },
+      {
+        "category_id": "G06",
+        "rank": 1,
+        "sku_id": "SYN-G06-001",
+        "slot_id": "K008",
+        "virtual_position": 1
+      },
+      {
+        "category_id": "G06",
+        "rank": 2,
+        "sku_id": "SYN-G06-002",
+        "slot_id": "K008",
+        "virtual_position": 2
+      },
+      {
+        "category_id": "G06",
+        "rank": 3,
+        "sku_id": "SYN-G06-003",
+        "slot_id": "K008",
+        "virtual_position": 3
+      },
+      {
+        "category_id": "G07",
+        "rank": 1,
+        "sku_id": "SYN-G07-003",
+        "slot_id": "K009",
+        "virtual_position": 1
+      },
+      {
+        "category_id": "G07",
+        "rank": 2,
+        "sku_id": "SYN-G07-001",
+        "slot_id": "K009",
+        "virtual_position": 2
+      },
+      {
+        "category_id": "G07",
+        "rank": 3,
+        "sku_id": "SYN-G07-002",
+        "slot_id": "K009",
+        "virtual_position": 3
+      },
+      {
+        "category_id": "G08",
+        "rank": 1,
+        "sku_id": "SYN-G08-001",
+        "slot_id": "K007",
+        "virtual_position": 1
+      },
+      {
+        "category_id": "G08",
+        "rank": 2,
+        "sku_id": "SYN-G08-002",
+        "slot_id": "K007",
+        "virtual_position": 2
+      },
+      {
+        "category_id": "G08",
+        "rank": 3,
+        "sku_id": "SYN-G08-003",
+        "slot_id": "K007",
+        "virtual_position": 3
+      },
+      {
+        "category_id": "G14",
+        "rank": 1,
+        "sku_id": "SYN-G14-003",
+        "slot_id": "K025",
+        "virtual_position": 1
+      },
+      {
+        "category_id": "G14",
+        "rank": 2,
+        "sku_id": "SYN-G14-001",
+        "slot_id": "K025",
+        "virtual_position": 2
+      },
+      {
+        "category_id": "G14",
+        "rank": 3,
+        "sku_id": "SYN-G14-002",
+        "slot_id": "K025",
+        "virtual_position": 3
+      },
+      {
+        "category_id": "G15",
+        "rank": 1,
+        "sku_id": "SYN-G15-003",
+        "slot_id": "K005",
+        "virtual_position": 1
+      },
+      {
+        "category_id": "G15",
+        "rank": 2,
+        "sku_id": "SYN-G15-001",
+        "slot_id": "K005",
+        "virtual_position": 2
+      },
+      {
+        "category_id": "G15",
+        "rank": 3,
+        "sku_id": "SYN-G15-002",
+        "slot_id": "K005",
+        "virtual_position": 3
+      },
+      {
+        "category_id": "G20",
+        "rank": 1,
+        "sku_id": "SYN-G20-003",
+        "slot_id": "K018",
+        "virtual_position": 1
+      },
+      {
+        "category_id": "G20",
+        "rank": 2,
+        "sku_id": "SYN-G20-001",
+        "slot_id": "K018",
+        "virtual_position": 2
+      },
+      {
+        "category_id": "G20",
+        "rank": 3,
+        "sku_id": "SYN-G20-002",
+        "slot_id": "K018",
+        "virtual_position": 3
+      },
+      {
+        "category_id": "G26",
+        "rank": 1,
+        "sku_id": "SYN-G26-002",
+        "slot_id": "K021",
+        "virtual_position": 1
+      },
+      {
+        "category_id": "G26",
+        "rank": 2,
+        "sku_id": "SYN-G26-003",
+        "slot_id": "K021",
+        "virtual_position": 2
+      },
+      {
+        "category_id": "G26",
+        "rank": 3,
+        "sku_id": "SYN-G26-001",
+        "slot_id": "K021",
+        "virtual_position": 3
+      },
+      {
+        "category_id": "G30",
+        "rank": 1,
+        "sku_id": "SYN-G30-001",
+        "slot_id": "K006",
+        "virtual_position": 1
+      },
+      {
+        "category_id": "G30",
+        "rank": 2,
+        "sku_id": "SYN-G30-002",
+        "slot_id": "K006",
+        "virtual_position": 2
+      },
+      {
+        "category_id": "G30",
+        "rank": 3,
+        "sku_id": "SYN-G30-003",
+        "slot_id": "K006",
+        "virtual_position": 3
+      }
+    ]
+  },
+  "schema_version": "1.0",
+  "status": "SUCCESS"
+}

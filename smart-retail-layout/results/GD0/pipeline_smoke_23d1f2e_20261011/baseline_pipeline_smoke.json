@@ -1,0 +1,289 @@
+{
+  "status": "completed",
+  "scope": "single smoke run of the unmodified v3 baseline snapshot; not an E1-E7 rerun or performance benchmark",
+  "baseline_commit": "23d1f2e002fdb38f3ad6c313fb9764a77a2281ca",
+  "source_archive": "tracked_HEAD_23d1f2e.zip",
+  "instance": {
+    "kind": "grid",
+    "scale": "small",
+    "n": 20,
+    "restrict_slots": false,
+    "level": "group"
+  },
+  "instance_dimensions": {
+    "n": 20,
+    "m": 25
+  },
+  "floorplan_sha256": "a39a8d86c732dff225d181733867262310a480aaf96e28caf093e7c2c2a792b1",
+  "config": {
+    "n_customers": 100,
+    "target_impulse_items": 1.5,
+    "nsga_time_s": 0.25,
+    "screen_rep": 1,
+    "refine_evals": 0,
+    "final_customers": 100,
+    "final_rep": 2,
+    "n_random_validity": 2,
+    "profiles": [
+      "Cân bằng"
+    ],
+    "seed": 20261011,
+    "objective": "model",
+    "include_current": true
+  },
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "packages": {
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "numba": "0.64.0",
+      "pymoo": "0.6.2",
+      "PuLP": "3.3.2",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "runtime_seconds": 2.387,
+  "calibration_lambda": 0.3430819511413574,
+  "pareto_size": 43,
+  "plans": {
+    "Hiện trạng": {
+      "z1": 219.77836786097845,
+      "z2": 1.1132137600494059,
+      "feasible": true
+    },
+    "Cân bằng – theo mô hình": {
+      "z1": 198.97872807099418,
+      "z2": 1.4136513176658208,
+      "feasible": true
+    },
+    "Cân bằng – chọn bằng mô phỏng": {
+      "z1": 219.77836786097845,
+      "z2": 1.1132137600494059,
+      "feasible": true
+    }
+  },
+  "current_layout_simulation_kpis": {
+    "distance_m": 28.06,
+    "trip_time_min": 2.760057433885767,
+    "exposed_slots": 9.17,
+    "impulse_revenue": 0.643,
+    "impulse_items": 1.49,
+    "basket_value": 2.7535000000000003,
+    "congestion_cells": 7.0
+  },
+  "final_summary_rows": [
+    {
+      "plan": "Hiện trạng",
+      "kpi": "distance_m",
+      "mean": 28.89,
+      "ci95": 5.971916226123071,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Hiện trạng",
+      "kpi": "trip_time_min",
+      "mean": 2.8400774890571827,
+      "ci95": 0.9213032800002805,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Hiện trạng",
+      "kpi": "exposed_slots",
+      "mean": 9.395,
+      "ci95": 1.5882755920540117,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Hiện trạng",
+      "kpi": "impulse_revenue",
+      "mean": 0.72975,
+      "ci95": 0.015882755920539778,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Hiện trạng",
+      "kpi": "impulse_items",
+      "mean": 1.6400000000000001,
+      "ci95": 0.25412409472864067,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Hiện trạng",
+      "kpi": "basket_value",
+      "mean": 2.9315000000000007,
+      "ci95": 0.15247445683718244,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Hiện trạng",
+      "kpi": "congestion_cells",
+      "mean": 7.0,
+      "ci95": 50.824818945728374,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Cân bằng – theo mô hình",
+      "kpi": "distance_m",
+      "mean": 29.759999999999998,
+      "ci95": 2.7953650420150686,
+      "change_pct": 3.011422637590853,
+      "p_value": 0.5
+    },
+    {
+      "plan": "Cân bằng – theo mô hình",
+      "kpi": "trip_time_min",
+      "mean": 2.8489887188501424,
+      "ci95": 0.6075996388909537,
+      "change_pct": 0.313767135836773,
+      "p_value": 1.0
+    },
+    {
+      "plan": "Cân bằng – theo mô hình",
+      "kpi": "exposed_slots",
+      "mean": 8.37,
+      "ci95": 1.0164963789145685,
+      "change_pct": -10.910058541777545,
+      "p_value": 0.5
+    },
+    {
+      "plan": "Cân bằng – theo mô hình",
+      "kpi": "impulse_revenue",
+      "mean": 0.6234999999999999,
+      "ci95": 0.6416633391898213,
+      "change_pct": -14.559780746831116,
+      "p_value": 0.5
+    },
+    {
+      "plan": "Cân bằng – theo mô hình",
+      "kpi": "impulse_items",
+      "mean": 1.38,
+      "ci95": 1.39768252100753,
+      "change_pct": -15.853658536585378,
+      "p_value": 0.5
+    },
+    {
+      "plan": "Cân bằng – theo mô hình",
+      "kpi": "basket_value",
+      "mean": 2.8252499999999996,
+      "ci95": 0.5050716382731695,
+      "change_pct": -3.624424356131709,
+      "p_value": 0.5
+    },
+    {
+      "plan": "Cân bằng – theo mô hình",
+      "kpi": "congestion_cells",
+      "mean": 7.0,
+      "ci95": 0.0,
+      "change_pct": 0.0,
+      "p_value": 1.0
+    },
+    {
+      "plan": "Cân bằng – chọn bằng mô phỏng",
+      "kpi": "distance_m",
+      "mean": 28.89,
+      "ci95": 5.971916226123071,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Cân bằng – chọn bằng mô phỏng",
+      "kpi": "trip_time_min",
+      "mean": 2.8400774890571827,
+      "ci95": 0.9213032800002805,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Cân bằng – chọn bằng mô phỏng",
+      "kpi": "exposed_slots",
+      "mean": 9.395,
+      "ci95": 1.5882755920540117,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Cân bằng – chọn bằng mô phỏng",
+      "kpi": "impulse_revenue",
+      "mean": 0.72975,
+      "ci95": 0.015882755920539778,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Cân bằng – chọn bằng mô phỏng",
+      "kpi": "impulse_items",
+      "mean": 1.6400000000000001,
+      "ci95": 0.25412409472864067,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Cân bằng – chọn bằng mô phỏng",
+      "kpi": "basket_value",
+      "mean": 2.9315000000000007,
+      "ci95": 0.15247445683718244,
+      "change_pct": 0.0,
+      "p_value": null
+    },
+    {
+      "plan": "Cân bằng – chọn bằng mô phỏng",
+      "kpi": "congestion_cells",
+      "mean": 7.0,
+      "ci95": 50.824818945728374,
+      "change_pct": 0.0,
+      "p_value": null
+    }
+  ],
+  "model_validity_rows": [
+    {
+      "model": "gốc (e hình học, p)",
+      "rho_Z1_distance": 0.7461674139390447,
+      "rho_Z1_trip_time": 0.7934011717545484,
+      "rho_Z2_impulse": -0.613235476681305,
+      "rho_Z2_basket": -0.613235476681305,
+      "n_layouts": 46,
+      "layouts": "Pareto + ngẫu nhiên"
+    },
+    {
+      "model": "hiệu chỉnh (e mô phỏng, q)",
+      "rho_Z1_distance": 0.7461674139390447,
+      "rho_Z1_trip_time": 0.7934011717545484,
+      "rho_Z2_impulse": 0.4790304684082968,
+      "rho_Z2_basket": 0.4790304684082968,
+      "n_layouts": 46,
+      "layouts": "Pareto + ngẫu nhiên"
+    },
+    {
+      "model": "gốc (e hình học, p)",
+      "rho_Z1_distance": 0.8668329041805565,
+      "rho_Z1_trip_time": 0.8331319842947751,
+      "rho_Z2_impulse": -0.6886657121498998,
+      "rho_Z2_basket": -0.6886657121498998,
+      "n_layouts": 43,
+      "layouts": "Pareto"
+    },
+    {
+      "model": "hiệu chỉnh (e mô phỏng, q)",
+      "rho_Z1_distance": 0.8668329041805565,
+      "rho_Z1_trip_time": 0.8331319842947751,
+      "rho_Z2_impulse": 0.7052782622236912,
+      "rho_Z2_basket": 0.7052782622236912,
+      "n_layouts": 43,
+      "layouts": "Pareto"
+    }
+  ],
+  "logs": [
+    "  [Model] λ = 0.3431",
+    "  [Optimization:model] |Pareto| = 43",
+    "  [Simulation] Cân bằng: mô hình #19, mô phỏng hiện trạng"
+  ]
+}

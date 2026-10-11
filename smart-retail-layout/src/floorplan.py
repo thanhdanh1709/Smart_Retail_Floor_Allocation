@@ -7,6 +7,7 @@ Từ lưới, mô-đun tách các vị trí trưng bày (slot), dựng đồ th�
     D[k, l]  – khoảng cách đi bộ giữa điểm tiếp cận slot k và l (m)
     d_in[k]  – khoảng cách cửa vào -> slot k
     d_out[k] – khoảng cách slot k -> quầy thu ngân gần nhất
+    d_0k[k]  – khoảng cách điểm tập kết online d_0 -> slot k (chỉ khi được cung cấp)
     e[k]     – mức tiếp xúc hình học của slot k (phương án (c) mục B2.4), chuẩn hóa [0, 1]
 """
 from __future__ import annotations
@@ -39,6 +40,7 @@ class FloorPlan:
     name: str = ""
     seg_len: int = 2
     min_len: int = 2
+    pickup_cell: tuple[int, int] | None = None
     slots: list[Slot] = field(default_factory=list, init=False)
 
     def __post_init__(self):
@@ -84,11 +86,19 @@ class FloorPlan:
     def cells_of(self, ch: str) -> list[tuple[int, int]]:
         return [(r, c) for r in range(self.R) for c in range(self.C) if self.grid[r][c] == ch]
 
+    def require_pickup(self) -> np.ndarray:
+        """Return distances from the explicitly configured online staging cell to each slot."""
+        if self.d_0k is None:
+            raise ValueError("Online staging point d_0 is not configured for this floorplan.")
+        return self.d_0k
+
     # ----------------------------------------------------------------- graph
     def _build_graph(self) -> None:
         walk = [(r, c) for r in range(self.R) for c in range(self.C) if self.grid[r][c] in WALKABLE]
         self.node_of = {cell: i for i, cell in enumerate(walk)}
         self.cell_of = walk
+        if self.pickup_cell is not None:
+            self.pickup_cell = self._normalize_pickup_cell(self.pickup_cell)
         rows, cols = [], []
         for (r, c), i in self.node_of.items():
             for dr, dc in DIRS.values():
@@ -123,6 +133,22 @@ class FloorPlan:
         self.d_out = dco.min(axis=1)[:m].copy()
         self.d_entry_exit = float(dco.min(axis=1)[m])
 
+        # Keep the online staging point outside self.points: existing v3 point indices
+        # use slot points 0..m-1 and entrance m.
+        self.d_0k: np.ndarray | None = None
+        if self.pickup_cell is not None:
+            pickup_node = self.node_of[self.pickup_cell]
+            pickup_dist = shortest_path(
+                self.adj, method="D", unweighted=True,
+                indices=[pickup_node], return_predecessors=False,
+            )[0]
+            access_nodes = np.array([self.node_of[s.access] for s in self.slots])
+            self.d_0k = np.asarray(pickup_dist[access_nodes], dtype=float)
+            if not np.isfinite(self.d_0k).all():
+                raise ValueError(
+                    f"Online staging point {self.pickup_cell} cannot reach every slot access point."
+                )
+
         # vùng tiếp xúc: ô lối đi -> danh sách slot
         self.zone_index: dict[int, list[int]] = {}
         for k, s in enumerate(self.slots):
@@ -130,6 +156,20 @@ class FloorPlan:
                 self.zone_index.setdefault(self.node_of[cell], []).append(k)
         self._leg_cache: dict[tuple[int, int], tuple[np.ndarray, np.ndarray]] = {}
         self.e = geometric_exposure(self)
+
+    def _normalize_pickup_cell(self, cell: tuple[int, int]) -> tuple[int, int]:
+        if (not isinstance(cell, (tuple, list)) or len(cell) != 2
+                or any(isinstance(v, bool) or not isinstance(v, (int, np.integer)) for v in cell)):
+            raise ValueError("pickup_cell must be a pair of integer (row, column) coordinates.")
+        row, col = (int(v) for v in cell)
+        if not (0 <= row < self.R and 0 <= col < self.C):
+            raise ValueError(f"Online staging point {cell} is outside the floorplan grid.")
+        normalized = (row, col)
+        if normalized not in self.node_of:
+            raise ValueError(
+                f"Online staging point {normalized} must be on a walkable A, E, or C cell."
+            )
+        return normalized
 
     # ------------------------------------------------------- path utilities
     def path_nodes(self, a: int, b: int) -> np.ndarray:

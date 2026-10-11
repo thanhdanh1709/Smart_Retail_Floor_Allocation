@@ -46,6 +46,57 @@ def test_slot_extraction_tiny():
         assert TINY[s.access[0]][s.access[1]] in "AEC"
 
 
+def test_online_staging_distances_are_optional_and_preserve_v3_geometry():
+    baseline = FloorPlan(TINY)
+    fp = FloorPlan(TINY, pickup_cell=(2, 2))
+
+    assert fp.slots[0].access == (2, 1)
+    assert fp.d_0k is not None and fp.d_0k.shape == (fp.m,)
+    assert np.isfinite(fp.require_pickup()).all()
+    assert fp.d_0k[0] == 1.0
+    assert baseline.d_0k is None
+    with pytest.raises(ValueError, match="d_0 is not configured"):
+        baseline.require_pickup()
+
+    for name in ("D", "d_in", "d_out", "e"):
+        np.testing.assert_array_equal(getattr(fp, name), getattr(baseline, name))
+
+
+@pytest.mark.parametrize(
+    ("grid", "pickup_cell", "message"),
+    [
+        (TINY, (-1, 0), "outside the floorplan grid"),
+        (TINY, (1, 1), "must be on a walkable"),
+        (["XXXXXXXXAA", *TINY[1:]], (0, 8), "cannot reach every slot access point"),
+    ],
+)
+def test_online_staging_cell_validation(grid, pickup_cell, message):
+    with pytest.raises(ValueError, match=message):
+        FloorPlan(grid, pickup_cell=pickup_cell)
+
+
+def test_make_instance_passes_explicit_online_staging_point():
+    import pandas as pd
+    from scipy.sparse import csr_matrix
+
+    par = {
+        "meta": pd.DataFrame({
+            "category_id": ["G01"], "name": ["test"], "group_id": ["G01"],
+            "needs_cold": [False],
+        }),
+        "f": np.array([1.0]),
+        "p": np.array([0.2]),
+        "v": np.array([1.0]),
+        "w": np.zeros((1, 1)),
+        "baskets": csr_matrix([[1]]),
+    }
+    inst = make_instance("grid", "small", n=1, par=par, separate=[], grid=TINY,
+                         pickup_cell=(2, 2))
+
+    assert inst.fp.pickup_cell == (2, 2)
+    assert inst.fp.require_pickup().shape == (inst.fp.m,)
+
+
 def test_cold_assignment():
     g = layouts.assign_cold(layouts.build("grid", "medium"), 6)
     assert FloorPlan(g).is_cold.sum() >= 6

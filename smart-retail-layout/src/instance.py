@@ -229,7 +229,8 @@ def _pad(x: np.ndarray, m: int) -> np.ndarray:
 def make_instance(kind: str, scale: str, n: int | None = None, level: str | None = None,
                   par: dict | None = None, separate: list | None = None, R: int = -1,
                   restrict_slots: bool = False, cold_slack: float = 0.2,
-                  fixed: dict | None = None, grid: list[str] | None = None) -> Instance:
+                  fixed: dict | None = None, grid: list[str] | None = None,
+                  pickup_cell: tuple[int, int] | None = None) -> Instance:
     """Tạo instance từ kiểu mặt bằng (grid/racetrack/free) và quy mô (small/medium/large).
 
     n: số nhóm (mặc định: small=20, medium=40 nhóm, large=132 aisle) – chọn n nhóm phổ biến nhất.
@@ -238,6 +239,7 @@ def make_instance(kind: str, scale: str, n: int | None = None, level: str | None
     separate: danh sách (category_id_1, category_id_2, δ) – mặc định DEFAULT_SEPARATE.
     fixed: {category_id: chỉ số slot}.
     grid: lưới mặt bằng tự cung cấp (vd. vẽ lại từ cửa hàng thật) thay cho bộ sinh mẫu.
+    pickup_cell: ô lối đi (row, column) được cung cấp rõ cho điểm tập kết online; None thì không tính d_0k.
     """
     level = level or SCALE_LEVEL[scale]
     par = par or params_mod.load(level)
@@ -251,7 +253,7 @@ def make_instance(kind: str, scale: str, n: int | None = None, level: str | None
     grid = layouts.build(kind, scale) if grid is None else list(grid)
     need = n_cold if restrict_slots else int(np.ceil(n_cold * (1 + cold_slack)))
     grid = layouts.assign_cold(grid, need)
-    fp = FloorPlan(grid, name=f"{kind}_{scale}")
+    fp = FloorPlan(grid, name=f"{kind}_{scale}", pickup_cell=pickup_cell)
 
     if restrict_slots:
         snake = fp.snake_order()

@@ -1,0 +1,61 @@
+schema_version: "1.0"
+case_id: grid_small_l0
+seed: 20261011
+fidelity: L0
+execution_mode: v3_bridge
+
+layout:
+  source: preset
+  kind: grid
+  scale: small
+  pickup_cell: null
+  cell_size_m: 1.0
+
+data:
+  source_type: processed
+  level: group
+  processed_root: data/processed
+  provenance_status: processed_raw_unverified
+  basket_source: processed
+
+categories:
+  n_categories: 10
+  restrict_slots: false
+  separation: default
+  fixed: {}
+  relocation_budget: -1
+
+optimizer:
+  method: ga_weighted
+  alpha: 0.5
+  payoff:
+    method: heuristic
+    pop_size: 16
+    max_gens: 15
+    stall_gens: 10
+    time_limit: 0
+    ls_frac: 0
+  ga:
+    method: ga_weighted
+    pop_size: 20
+    max_gens: 25
+    stall_gens: 15
+    time_limit: 0
+    ls_frac: 0
+
+item_fixture:
+  enabled: true
+  kind: synthetic_frequency_rank
+  items_per_category: 3
+  generator_version: 1
+
+simulation:
+  n_customers: 80
+  strategy: nn
+  lam: 0.05
+  seed_offset: 0
+  speed_mps: 1.0
+  calibration: fixed_assumption
+
+output:
+  include_heatmaps: false

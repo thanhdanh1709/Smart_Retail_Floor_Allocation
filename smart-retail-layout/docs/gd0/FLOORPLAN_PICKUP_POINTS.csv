@@ -1,0 +1,11 @@
+floorplan,pickup_status,pickup_row,pickup_col,source,notes
+case_minimart,UNSPECIFIED,,,none,No staging location encoded or confirmed; do not infer from entrance or checkout
+free_small,UNSPECIFIED,,,none,Generated/sample layout; no operational staging point defined
+free_medium,UNSPECIFIED,,,none,Generated/sample layout; no operational staging point defined
+free_large,UNSPECIFIED,,,none,Generated/sample layout; no operational staging point defined
+grid_small,UNSPECIFIED,,,none,Generated/sample layout; no operational staging point defined
+grid_medium,UNSPECIFIED,,,none,Generated/sample layout; no operational staging point defined
+grid_large,UNSPECIFIED,,,none,Generated/sample layout; no operational staging point defined
+racetrack_small,UNSPECIFIED,,,none,Generated/sample layout; no operational staging point defined
+racetrack_medium,UNSPECIFIED,,,none,Generated/sample layout; no operational staging point defined
+racetrack_large,UNSPECIFIED,,,none,Generated/sample layout; no operational staging point defined

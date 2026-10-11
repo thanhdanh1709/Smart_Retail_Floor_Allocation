@@ -1,0 +1,34 @@
+entity,field,definition,unit,current_location,status,source_or_method,notes,blocks_v4
+raw_product,product_id,ID sản phẩm Instacart,ID,data/raw/instacart/products.csv,MISSING,Instacart,Raw source vắng mặt,YES
+raw_product,aisle_id,ID aisle gắn với sản phẩm,ID,data/raw/instacart/products.csv,MISSING,Instacart,Không mang thông tin giá,YES
+raw_aisle,aisle_id,ID aisle,ID,data/raw/instacart/aisles.csv,MISSING,Instacart,Raw source vắng mặt,YES
+raw_aisle,aisle,Tên aisle,string,data/raw/instacart/aisles.csv,MISSING,Instacart,Raw source vắng mặt,NO
+order_product,order_id,ID đơn hàng,ID,data/raw/instacart/order_products__prior.csv,MISSING,Instacart,Raw source vắng mặt,YES
+order_product,product_id,ID sản phẩm trong đơn hàng,ID,data/raw/instacart/order_products__prior.csv,MISSING,Instacart,Raw source vắng mặt,YES
+order_product,reordered,Sản phẩm đã được mua ở đơn trước hay chưa,boolean,data/raw/instacart/order_products__prior.csv,MISSING,Instacart,Được dùng để tạo reorder_rate/impulse_p,YES
+order,order_dow,Ngày trong tuần của đơn hàng,day of week,data/raw/instacart/orders.csv,MISSING,Instacart,orders.csv không có; không dùng trong v3,YES
+order,order_hour_of_day,Giờ trong ngày của đơn hàng,hour,data/raw/instacart/orders.csv,MISSING,Instacart,orders.csv không có; không dùng trong v3,YES
+department,department,Phòng ban sản phẩm,string,data/raw/instacart/departments.csv,MISSING,Instacart,Optional cho phân tích theo department,NO
+group,group_id,Mã nhóm hàng,string,data/mappings/groups_vn.csv,READY,Project mapping,40 nhóm Việt hóa,NO
+group,name,Tên nhóm hàng,string,data/mappings/groups_vn.csv,READY,Project mapping,Tên ánh xạ,NO
+group,aisle_ids,Aisle Instacart ánh xạ vào nhóm,IDs separated by semicolon,data/mappings/groups_vn.csv,READY,Project mapping,Mappings cần lineage/license và kiểm tra domain,NO
+group,needs_cold,Nhãn nhóm cần bảo quản lạnh,boolean,data/mappings/groups_vn.csv,ASSUMED,Project mapping,Nhãn mô hình; không phải nhiệt độ đo,YES
+group,value_v,Hệ số giá trị nhóm giả định,unitless,data/mappings/groups_vn.csv,ASSUMED,Project heuristic,Không được gọi là price/revenue/margin; Instacart không có price,YES
+group,dwell_level,Mức dừng lựa chọn,ordinal,data/mappings/groups_vn.csv,ASSUMED,Project heuristic,Ánh xạ sang 6/10/18 giây,YES
+group,n_slots,Số đơn vị trưng bày cho category,slot,data/processed/*/categories.csv,ASSUMED,params.py sets 1,Không phải năng lực kệ thực tế,YES
+group,f_i,Phần đơn hàng chứa category i,share,data/processed/*/f.npy,DERIVED,Co-occurrence count divided by N,Raw input không còn để tái lập,YES
+group,w_ij,Phần đơn hàng chứa đồng thời i và j,share,data/processed/*/w.npy,DERIVED,Co-occurrence count divided by N,Đường chéo được đặt bằng 0,YES
+group,lift_ij,Co-occurrence lift giữa i và j,ratio,data/processed/*/lift.npy,DERIVED,w_ij/(f_i*f_j),Không phải quan hệ nhân quả,NO
+group,reorder_rate,Tỷ lệ reorder theo unit,share,data/processed/*/categories.csv,DERIVED,Mean of reordered per category/group,Raw input không còn để tái lập,YES
+group,impulse_p,Proxy mua ngẫu hứng,share,data/processed/*/p.npy,PROXY,1 - reorder_rate,Không phải impulse label quan sát,YES
+group,dwell_median_s,Thời gian dừng trung vị,seconds,data/processed/*/categories.csv,ASSUMED,"DWELL_MEDIAN_S {1:6, 2:10, 3:18}",Không có trajectory/dwell quan sát,YES
+group,value_vector_v,Vector giá trị gán cho category,unitless,data/processed/*/v.npy,ASSUMED,Loaded from value_v mapping,Không phải doanh thu thực tế,YES
+basket,baskets,Ma trận giỏ hàng CSR cho mô phỏng,count,data/processed/*/baskets.npz,DERIVED,Sampled from processed baskets,Manifest N order không đồng nghĩa mỗi basket đã được lưu,YES
+sku,selling_price,Giá bán SKU,currency per item,not present,MISSING,No raw price source,Instacart source/processed data không có trường giá,YES
+sku,unit_margin,Giá vốn/biên lợi nhuận,currency per item,not present,MISSING,No source,Không thể tính impulse-profit thực nghiệm,YES
+sku,product_width,Chiều rộng vật lý sản phẩm/metre,metre,not present,MISSING,No source,Không có dimension SKU,YES
+shelf,physical_capacity,Sức chứa kệ vật lý,units or metres,not present,MISSING,No store measurement,n_slots=1 không đại diện sức chứa,YES
+aisle,aisle_width,Bề rộng lối đi thực tế,metre,not present,MISSING,No store measurement,Grid cell 1m là quy ước mô hình,YES
+trajectory,customer_path,Quỹ đạo khách hàng trong cửa hàng,coordinates/time,data not present,MISSING,No in-repo trajectory dataset,HRN4Customer chưa xác định được dataset/rights,YES
+floorplan,pickup_cell,Vị trí staging d_0 theo row/column,grid cell,API FloorPlan optional parameter,OPTIONAL,Explicit caller input only,None means no d_0/d_0k; no default assumption,YES
+floorplan,d_0k,Shortest-path distance from pickup_cell to slot access k,grid edges,data computed when pickup_cell supplied,DERIVED,Shortest paths over existing A/E/C graph,Distance is cell-edge count under grid model,YES
