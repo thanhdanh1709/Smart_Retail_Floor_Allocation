@@ -1,37 +1,180 @@
 # Smart Retail Floor Allocation
 
-Mã nguồn của đề án **“Tối ưu hóa không gian trưng bày và luồng di chuyển của khách hàng trong cửa hàng bán lẻ số”**. Dự án triển khai mô hình hóa mặt bằng, ước lượng tham số từ giỏ hàng, quy hoạch nguyên song mục tiêu, GA/NSGA-II, mô phỏng khách hàng, bộ thí nghiệm E1–E7 và dashboard hỗ trợ ra quyết định.
+Dự án nghiên cứu tối ưu mặt bằng bán lẻ, phân bổ ngành hàng, xếp SKU lên kệ và mô phỏng luồng khách hàng/người lấy hàng online. Kế hoạch v4 hướng tới ghép các lớp này thành quy trình thiết kế, đánh giá và điều chỉnh bố trí cửa hàng.
 
-Bài toán chính là gán các nhóm hàng vào vị trí trưng bày để cân đối **tiện lợi khi mua sắm** và **giá trị mua ngẫu hứng theo mô hình**. Đây là công cụ nghiên cứu và so sánh phương án. Dữ liệu Instacart, hệ số giá trị và hành vi mô phỏng cần được hiệu chỉnh bằng dữ liệu cửa hàng trước khi dùng cho quyết định thực tế.
+**Cập nhật ngày 17/10/2026: chưa hoàn thành toàn bộ kế hoạch v4.** Dự án đã có các thuật toán nền và nhiều phạm vi kỹ thuật được nghiệm thu. Luồng thiết kế chính vẫn là Quick L0/v3 bridge. Luồng T2 → T3 riêng mới được triển khai, đã có kiểm thử tập trung đạt và đã được review với ba lỗi bắt buộc cần sửa trước khi đóng P1.
 
-<!-- AUTO-GENERATED -->
-<!-- Phần kỹ thuật được đối chiếu từ source/config/tests; không có script tự sinh README. -->
-<!-- Baseline kiểm tra: f4ab327, ngày 2026-10-04. -->
+README phản ánh **working tree hiện tại, gồm cả mã chưa commit**. Commit `0bdb4ec` trên nhánh `main` chưa đại diện đầy đủ cho các phần đang phát triển.
 
-## Mục lục
+## Điều hướng
 
-- [1. Tổng quan và luồng thực hiện](#tong-quan)
-- [2. Cài đặt và chạy nhanh](#cai-dat)
-- [3. Cấu trúc dự án](#cau-truc)
-- [4. Dữ liệu và tiền xử lý](#du-lieu)
-- [5. Mặt bằng, slot và đồ thị](#mat-bang)
-- [6. Instance, biểu diễn nghiệm và ràng buộc](#instance)
-- [7. Mô hình toán và chuẩn hóa](#mo-hinh)
-- [8. Thuật toán tối ưu](#thuat-toan)
-- [9. Mô phỏng khách hàng](#mo-phong)
-- [10. Pipeline hiệu chỉnh, chọn và đánh giá](#pipeline)
-- [11. Dashboard Streamlit](#dashboard)
-- [12. Thí nghiệm E1–E7](#thi-nghiem)
-- [13. Đọc kết quả và tái lập](#tai-lap)
-- [14. Kiểm thử và xử lý lỗi chạy](#kiem-thu)
-- [15. Giới hạn hiện tại](#gioi-han)
-- [16. Quy trình phát triển với ECC và AGENTS.md](#quy-trinh-ai)
+- [Tiến độ và giới hạn v4](#tien-do-v4)
+- [Chạy các luồng hiện có](#chay-hien-tai)
+- [Dữ liệu và bằng chứng kiểm thử](#du-lieu-va-kiem-thu)
+- [Cấu trúc, tài liệu và bước tiếp theo](#tai-lieu-hien-tai)
+- [Tham khảo kỹ thuật v3](#tham-khao-v3): [cài đặt](#cai-dat), [dữ liệu](#du-lieu), [mặt bằng](#mat-bang), [mô hình](#mo-hinh), [thuật toán](#thuat-toan), [dashboard](#dashboard), [E1–E7](#thi-nghiem).
+
+<a id="tien-do-v4"></a>
+
+## Tiến độ và giới hạn v4
+
+| Hạng mục | Đã có | Phần còn thiếu hoặc giới hạn |
+|---|---|---|
+| Nền v3 | Mặt bằng/đồ thị, tham số giỏ hàng, QAP/ILP, GA/NSGA-II, mô phỏng khách, dashboard, E1–E7 | Là nền tái sử dụng; không tự đáp ứng toàn bộ v4 |
+| Hợp đồng và thiết kế | `src/system/`, kiểm tra ID/đơn vị/nguồn, cache và JSON kết quả | `design_store`/CLI chính chỉ hỗ trợ Quick L0/v3 bridge; L1/L2 chưa tích hợp đầy đủ |
+| T2 — phân bổ ngành hàng | Two-flow, epsilon picking/conflict, robust, MILP/RLT, GA và outer MSA | Các API nâng cao chưa ghép đầy đủ vào luồng thiết kế chính |
+| T3 — xếp SKU | SSAP bằng MILP/heuristic, kích thước, facings, tồn kho, vùng lạnh, nhóm hàng | Planogram mặc định của Quick bridge vẫn là vị trí ảo; phải gọi slotting riêng hoặc P1 để có bố trí kệ vật lý |
+| Hành vi/T4/picker | RL/SUE, FlowBank, routing/batching/scheduling, mô phỏng hai luồng có thời gian, sức chứa và hàng chờ | Chưa tích hợp xuyên suốt; còn thiếu cầu nối mật độ/chi phí tuyến và phản hồi giữa tầng |
+| Vòng ghép outer | Có bộ điều phối và luồng L0 tổng hợp có giới hạn | Chưa chứng minh vòng ghép bốn tầng tổng quát/hội tụ đầy đủ |
+| T1 — tìm kiếm mặt bằng | Cache, successive halving, Bayesian GP/EI trong phạm vi tổng hợp | Provider hiện dùng điểm giả lập; chưa đánh giá mặt bằng bằng KPI thực từ T2/T4 |
+| UI và chạy lại | Dashboard cũ, UI v4 sáu bước riêng, rerun mô phỏng, cải tạo từ bố trí gốc, bundle PNG/PDF/CSV trong phạm vi Quick | Chưa có đồ thị phụ thuộc chạy lại và UI/CLI/đầu ra đầy đủ cho mọi tầng |
+| **V4-P1-01 mới** | Package `v4_integration/`: T2 robust → gán ngành hàng vào vị trí → T3 vật lý; có API/CLI/ví dụ tổng hợp | **Đã triển khai; review có điều kiện, còn ba lỗi bắt buộc**; fixed exposure, chưa có T1/T4 hoặc lặp phản hồi T3 → T2 |
+
+### Nghiên cứu đã thực hiện
+
+| Phạm vi | Trạng thái ghi nhận |
+|---|---|
+| E12 route V1 | Đã nghiệm thu nghiên cứu tổng hợp trong miền hình học/protocol đã chốt |
+| E14 V1 | Thực thi kỹ thuật đã nghiệm thu; nghiên cứu **INCOMPLETE**, giữ nguyên các trường hợp không có nghiệm |
+| E14 V1B | Nghiên cứu tổng hợp riêng **ACCEPTED / CLOSED** |
+| E14 V2A T3 | Độ nhạy T3 **ACCEPTED / CLOSED** ngày 16/10: 30 bộ mẫu × 7 kịch bản, 1.260 kết quả phương pháp khả thi |
+| E14 V2B S8 | **Protocol đã nghiệm thu; chưa triển khai/chạy nghiên cứu**; chưa có kết quả S8 mới |
+| Toàn bộ E8–E20/E6′ và v4 | Vẫn mở; số test hoặc nghiệm thu một nghiên cứu không thay thế nghiệm thu toàn bộ |
+
+S05/S06/S07 giữ **`RETIRED_OUT_OF_SCOPE`** theo phạm vi đã thống nhất; PRE1/PRE6 giữ **`NOT_READY`**.
+
+[Báo cáo source so với kế hoạch v4](smart-retail-layout/docs/retro/v4-source-vs-plan/gap-register.md) đối chiếu 27 nhóm yêu cầu, 10 khoảng trống trước P1. Ước tính khoảng 56% ở lần rà soát đó là phép tính đơn giản theo nhóm yêu cầu, không phải tỷ lệ nghiệm thu chính thức hoặc thời gian còn lại. Chưa tính lại tỷ lệ sau P1. Checkpoint mới nhất nằm trong [HANDOFF.md](HANDOFF.md).
+
+<a id="chay-hien-tai"></a>
+
+## Chạy các luồng hiện có
+
+Mọi lệnh module chạy từ **`smart-retail-layout/`**. Thư viện được khóa trong [requirements.txt](smart-retail-layout/requirements.txt). Nếu đã có `.venv` của dự án thì dùng lại môi trường đó.
+
+```powershell
+# Từ thư mục gốc repository:
+Set-Location .\smart-retail-layout
+# Chỉ thực hiện hai bước sau nếu cần tạo/cài môi trường:
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+$env:PYTHONIOENCODING = "utf-8"
+```
+
+### Quick L0/v3 bridge
+
+```powershell
+.\.venv\Scripts\python.exe -m src.system design --spec specs/store.yaml --quick --no-cache
+# Hoặc mặt bằng minimart:
+.\.venv\Scripts\python.exe -m src.system design --spec specs/case_minimart.yaml --quick --no-cache
+```
+
+Kết quả mặc định: `results/GD1/runs/<case_id>/<content_hash>/design.json`. Dùng `--out <đường-dẫn-mới>` để chỉ định nơi lưu. [Hướng dẫn System Quick](smart-retail-layout/docs/gd1/README.md) mô tả hợp đồng, cache và mã lỗi. `SUCCESS` ở luồng này chỉ xác nhận phạm vi Quick, chưa chứng minh đã chạy đầy đủ v4.
+
+### Luồng P1 T2 → T3 — đang phát triển
+
+Ví dụ tổng hợp tự tạo gồm hai ngành hàng, SKU và kệ vật lý; không cần tải thêm dữ liệu:
+
+```powershell
+$p1Output = Join-Path $env:TEMP ("retail-v4-p1-" + [guid]::NewGuid().ToString("N") + ".json")
+.\.venv\Scripts\python.exe -m v4_integration --spec specs/v4_p1_synthetic.json --output $p1Output --no-cache
+```
+
+Kết quả hợp lệ mang trạng thái **`PARTIAL_T2_T3_COMPLETE`**, có artifact T2/T3, ánh xạ vật lý và SHA-256 đầu vào/mã nguồn. Kệ được kiểm tra theo kích thước khai báo; chưa có chứng minh kích thước lắp đặt thực hoặc khoảng hở đo tại cửa hàng. CLI yêu cầu tệp đích mới; chưa có cache tích hợp. P1 hiện hỗ trợ fixed exposure, ô mặt bằng 1 m, T2 `robust_fixed_ilp` hoặc oracle tối đa 8 slot, T3 `milp`/`heuristic`. Dữ liệu tổng hợp cần khai báo nguồn và `test_mode`. **P1 chưa được đóng nghiệm thu**: còn sửa phân loại lỗi T2, lỗi kiểm tra lại artifact và xuất tệp nguyên tử; chưa đóng V4-R01 và chưa có T1/T4/hội tụ phản hồi.
+
+```python
+from v4_integration import load_v4_p1_request, run_v4_p1
+
+request = load_v4_p1_request("specs/v4_p1_synthetic.json")
+result = run_v4_p1(request, use_cache=False)
+print(result["status"])
+```
+
+### Giao diện
+
+```powershell
+# Dashboard v3:
+.\.venv\Scripts\python.exe -m streamlit run app/streamlit_app.py
+# Hoặc UI v4 sáu bước, phạm vi Quick:
+.\.venv\Scripts\python.exe -m streamlit run app/streamlit_v4.py
+```
+
+UI v4 hiện chưa tự dùng luồng P1 mới. Mở địa chỉ Streamlit in trong terminal; dừng bằng `Ctrl+C`. Trên Linux/macOS, tạo venv bằng `python3 -m venv .venv`, dùng `.venv/bin/python` thay đường dẫn Windows.
+
+<a id="du-lieu-va-kiem-thu"></a>
+
+## Dữ liệu và bằng chứng kiểm thử
+
+- [Retail_TestPack/](Retail_TestPack/) là bộ người dùng đã đặt tại gốc dự án; đối chiếu khả năng dùng từng trường trong [DATA_READINESS.md](smart-retail-layout/docs/gd0/DATA_READINESS.md). Có tệp chưa tự chứng minh đủ đầu vào cho mọi tầng.
+- [data/processed/](smart-retail-layout/data/processed/) chứa tham số/giỏ hàng cấp `group` và `aisle`; [data/floorplans/](smart-retail-layout/data/floorplans/) chứa mặt bằng/bảng slot.
+- [Ví dụ P1](smart-retail-layout/specs/v4_p1_synthetic.json) và [fixtures P1](smart-retail-layout/tests/fixtures/v4_p1/) là dữ liệu tổng hợp có khai báo nguồn và giả định, không phải quan sát cửa hàng thực.
+- Kế hoạch cho phép giả định giá trị, kích thước và mục tiêu hành vi khi ghi rõ nguồn/đơn vị. Instacart/đồng mua không trực tiếp quan sát luồng khách, ùn tắc hoặc mua ngoài kế hoạch.
+
+| Thời điểm | Phạm vi | Kết quả đã ghi nhận |
+|---|---|---|
+| 17/10/2026 | P1 mới + system robust/slotting, robust lineage, slotting feedback, system contracts | **140 passed**, 89,62 giây; dùng thư mục tạm mới sau lỗi quyền truy cập thư mục pytest cũ |
+| 16/10/2026 | Toàn bộ suite tại checkpoint E14 V2A, trước khi thêm P1 | **2.234 passed / 0 failed / 0 skipped**, 4.135,94 giây; 337 cảnh báo Matplotlib/Pyparsing đã biết |
+
+Lượt 140 bài là kiểm thử chọn lọc; lượt 2.234 bài là kết quả lịch sử, chưa chạy lại cho P1 hiện tại. Review P1 đã trả **CONDITIONAL ACCEPTANCE**, còn ba sửa đổi bắt buộc và cần chạy lại kiểm tra sau sửa. Lượt 140 bài là kết quả trước sửa. Cập nhật README không chạy thêm suite mới.
+
+Lệnh kiểm tra khi cần:
+
+```powershell
+$pytestTemp = Join-Path $env:TEMP ("retail-pytest-" + [guid]::NewGuid().ToString("N"))
+.\.venv\Scripts\python.exe -m pytest tests/test_v4_integration_p1.py tests/test_system_robust.py tests/test_system_slotting.py tests/test_robust_lineage.py tests/test_slotting_feedback.py tests/test_system_contracts.py -q --basetemp $pytestTemp
+# Kiểm tra rộng khi cần nghiệm thu:
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+Các nghiên cứu đã nghiệm thu khóa protocol/mã nguồn bằng hash. Không sửa hash cũ để hợp thức hóa thay đổi nguồn; thử nghiệm thay đổi cần phiên bản/phạm vi riêng. P1 nằm ngoài `src/` để tránh thay đổi tập nguồn đã đóng băng của E14 V1B/V2A. Test đạt không thay thế toàn bộ nghiên cứu v4 hay kiểm chứng tại cửa hàng thực.
+
+<a id="tai-lieu-hien-tai"></a>
+
+## Cấu trúc, tài liệu và bước tiếp theo
+
+```text
+Smart_Retail_Floor_Allocation/
+├── README.md / AGENTS.md / HANDOFF.md
+├── Retail_TestPack/
+└── smart-retail-layout/
+    ├── src/                  Lõi v3 và module/adapters v4
+    ├── v4_integration/       P1 T2 → T3 riêng, đang phát triển
+    ├── app/                  Dashboard cũ và UI v4 Quick
+    ├── specs/                Cấu hình Quick và ví dụ P1
+    ├── data/                 Processed, mapping, floorplan, QAPLIB
+    ├── experiments/          E1–E7 và các nghiên cứu v4 đã bổ sung
+    ├── tests/                Unit, contract, integration, replay
+    ├── docs/                 Kế hoạch, backlog, audit, protocol
+    ├── results/              Kết quả, biểu đồ, cache theo phạm vi
+    └── requirements.txt
+```
+
+| Tài liệu | Vai trò |
+|---|---|
+| [KE_HOACH_v4.md](smart-retail-layout/docs/KE_HOACH_v4.md) | Yêu cầu và mục tiêu gốc |
+| [Đối chiếu source với v4](smart-retail-layout/docs/retro/v4-source-vs-plan/gap-register.md) | Chức năng có sẵn, 27 nhóm yêu cầu và 10 khoảng trống trước P1 |
+| [CONG_VIEC_v4.md](smart-retail-layout/docs/CONG_VIEC_v4.md) | Backlog và lịch sử thực hiện |
+| [Ma trận GĐ0–GĐ11](smart-retail-layout/docs/GD0_GD11_PHASE_MATRIX_20261016.md) | Phạm vi nghiệm thu và bằng chứng |
+| [Protocol E14 V2A T3](smart-retail-layout/docs/GD11_E14_V2A_T3_SENSITIVITY_PROTOCOL_V1.md) | Nghiên cứu T3 đã thực hiện |
+| [Protocol E14 V2B S8](smart-retail-layout/docs/GD11_E14_V2B_S8_SENSITIVITY_PROTOCOL_V1.md) | Thiết kế S8 đã chốt, chưa thực thi |
+| [HANDOFF.md](HANDOFF.md) | Checkpoint, lỗi/kết quả, việc đang làm và hành động tiếp theo |
+| [AGENTS.md](AGENTS.md) | Quy trình cộng tác và ChatGPT Project |
+
+**Ưu tiên tiếp theo:** sửa ba lỗi bắt buộc của P1 và hoàn tất kiểm tra/review lại; nối FlowBank/exposure phụ thuộc phương án với T4 và phản hồi T3 → T2; thay provider giả T1 bằng KPI thực; hoàn thiện outer/L1/L2/rerun/UI/đầu ra; tiếp tục thuật toán và nghiên cứu còn thiếu theo báo cáo đối chiếu.
+
+Một số mô tả/checkbox cũ trong backlog và ma trận còn phản ánh thời điểm trước. Khi khác nhau, đối chiếu mã nguồn, chứng cứ chạy và checkpoint mới nhất. Trước khi phát triển, đọc `AGENTS.md`/`HANDOFF.md`, kiểm tra Git; tham vấn đúng ChatGPT Project qua Playwright MCP cho công việc kỹ thuật đáng kể, cập nhật handoff và bảo toàn thay đổi chưa commit. Chỉ commit/push khi được cho phép.
+
+<a id="tham-khao-v3"></a>
+
+## Tham khảo kỹ thuật v3 được giữ lại
+
+Các mục đánh số 1–15 bên dưới mô tả **pipeline/dashboard/thí nghiệm v3 cũ**. Các câu về thiếu SKU, hàng chờ, cache hoặc mô hình trong phần này áp dụng cho đường chạy v3 được nêu; trạng thái module v4 độc lập và phần tích hợp mới được trình bày phía trên. Mốc 18 tests năm 2026-10-04 chỉ là lịch sử v3.
 
 <a id="tong-quan"></a>
 
 ## 1. Tổng quan và luồng thực hiện
 
-Pipeline dùng chung tại [src/pipeline.py](src/pipeline.py), dashboard và thí nghiệm E5:
+Pipeline dùng chung tại [src/pipeline.py](smart-retail-layout/src/pipeline.py), dashboard và thí nghiệm E5:
 
 ~~~mermaid
 flowchart TD
@@ -65,7 +208,7 @@ flowchart TD
 
 ### 2.1. Môi trường
 
-[requirements.txt](requirements.txt) ghi Python 3.10+ và khóa phiên bản các thư viện. Lần kiểm tra baseline của README dùng **Python 3.12.10 trên Windows**, với các phiên bản cài đặt khớp requirements. Đây là môi trường đã kiểm tra, không phải cam kết mọi phiên bản Python/nền tảng đều tương đương.
+[requirements.txt](smart-retail-layout/requirements.txt) ghi Python 3.10+ và khóa phiên bản các thư viện. Lần kiểm tra baseline của README dùng **Python 3.12.10 trên Windows**, với các phiên bản cài đặt khớp requirements. Đây là môi trường đã kiểm tra, không phải cam kết mọi phiên bản Python/nền tảng đều tương đương.
 
 | Nhóm | Thư viện chính |
 |---|---|
@@ -123,7 +266,7 @@ Chạy thí nghiệm sẽ ghi kết quả vào results/ và có thể ghi đè k
 
 ## 3. Cấu trúc dự án
 
-Từ gốc repository, đề cương nằm ở [docx/De_cuong_Smart_Retail_Floor_Allocation.docx](../docx/De_cuong_Smart_Retail_Floor_Allocation.docx); mã thực thi nằm trong smart-retail-layout/:
+Từ gốc repository, đề cương nằm ở [docx/De_cuong_Smart_Retail_Floor_Allocation.docx](docx/De_cuong_Smart_Retail_Floor_Allocation.docx); mã thực thi nằm trong smart-retail-layout/:
 
 ~~~text
 smart-retail-layout/
@@ -144,28 +287,28 @@ smart-retail-layout/
 
 | Tệp | Trách nhiệm chính |
 |---|---|
-| [app/streamlit_app.py](app/streamlit_app.py) | Giao diện năm tab, upload dữ liệu, lưu kết quả các khâu trong session |
-| [src/params.py](src/params.py) | Nạp raw Instacart/CSV upload; tính w, f, lift, p, v và giỏ CSR |
-| [src/layouts.py](src/layouts.py), [src/floorplan.py](src/floorplan.py) | Sinh lưới, gán vùng lạnh, tách slot, đồ thị và đường đi |
-| [src/instance.py](src/instance.py) | Instance, ma trận tương thích, hiện trạng, mục tiêu, kiểm tra vi phạm |
-| [src/fastops.py](src/fastops.py) | Nhân Numba: objective, delta swap, penalty, local search |
-| [src/model_ilp.py](src/model_ilp.py), [src/solvers.py](src/solvers.py) | ILP, epsilon-front, payoff và chuẩn hóa |
-| [src/ga.py](src/ga.py) | GA với toán tử hoán vị, repair, local search và nhập cư |
-| [src/moo.py](src/moo.py) | NSGA-II, lọc Pareto, hypervolume, điểm gối, quét alpha |
-| [src/baselines.py](src/baselines.py) | Random, Greedy, Simulated Annealing và Tabu Search |
-| [src/simulate.py](src/simulate.py) | Simulator, hiệu chỉnh lambda, tiếp xúc, lặp mô phỏng và KTC |
-| [src/routing.py](src/routing.py) | RouteModel và RouteObjective: khoảng cách/giá trị theo tuyến đi |
-| [src/pipeline.py](src/pipeline.py) | Hiệu chỉnh → sinh ứng viên → sàng lọc → chọn/tinh chỉnh → đánh giá cuối |
-| [src/relocation.py](src/relocation.py) | Chuỗi đổi chỗ ưu tiên để đưa nhóm hàng về slot đích |
-| [src/qaplib.py](src/qaplib.py), [src/viz.py](src/viz.py) | Đọc QAPLIB, vẽ mặt bằng/Pareto/heatmap |
-| [experiments/common.py](experiments/common.py) | Cấu hình, dựng instance, payoff cache, workers và metadata lần chạy |
-| [tests/test_core.py](tests/test_core.py) | Kiểm tra công thức, thuật toán, mô phỏng và pipeline |
+| [app/streamlit_app.py](smart-retail-layout/app/streamlit_app.py) | Giao diện năm tab, upload dữ liệu, lưu kết quả các khâu trong session |
+| [src/params.py](smart-retail-layout/src/params.py) | Nạp raw Instacart/CSV upload; tính w, f, lift, p, v và giỏ CSR |
+| [src/layouts.py](smart-retail-layout/src/layouts.py), [src/floorplan.py](smart-retail-layout/src/floorplan.py) | Sinh lưới, gán vùng lạnh, tách slot, đồ thị và đường đi |
+| [src/instance.py](smart-retail-layout/src/instance.py) | Instance, ma trận tương thích, hiện trạng, mục tiêu, kiểm tra vi phạm |
+| [src/fastops.py](smart-retail-layout/src/fastops.py) | Nhân Numba: objective, delta swap, penalty, local search |
+| [src/model_ilp.py](smart-retail-layout/src/model_ilp.py), [src/solvers.py](smart-retail-layout/src/solvers.py) | ILP, epsilon-front, payoff và chuẩn hóa |
+| [src/ga.py](smart-retail-layout/src/ga.py) | GA với toán tử hoán vị, repair, local search và nhập cư |
+| [src/moo.py](smart-retail-layout/src/moo.py) | NSGA-II, lọc Pareto, hypervolume, điểm gối, quét alpha |
+| [src/baselines.py](smart-retail-layout/src/baselines.py) | Random, Greedy, Simulated Annealing và Tabu Search |
+| [src/simulate.py](smart-retail-layout/src/simulate.py) | Simulator, hiệu chỉnh lambda, tiếp xúc, lặp mô phỏng và KTC |
+| [src/routing.py](smart-retail-layout/src/routing.py) | RouteModel và RouteObjective: khoảng cách/giá trị theo tuyến đi |
+| [src/pipeline.py](smart-retail-layout/src/pipeline.py) | Hiệu chỉnh → sinh ứng viên → sàng lọc → chọn/tinh chỉnh → đánh giá cuối |
+| [src/relocation.py](smart-retail-layout/src/relocation.py) | Chuỗi đổi chỗ ưu tiên để đưa nhóm hàng về slot đích |
+| [src/qaplib.py](smart-retail-layout/src/qaplib.py), [src/viz.py](smart-retail-layout/src/viz.py) | Đọc QAPLIB, vẽ mặt bằng/Pareto/heatmap |
+| [experiments/common.py](smart-retail-layout/experiments/common.py) | Cấu hình, dựng instance, payoff cache, workers và metadata lần chạy |
+| [tests/test_core.py](smart-retail-layout/tests/test_core.py) | Kiểm tra công thức, thuật toán, mô phỏng và pipeline |
 
 <a id="du-lieu"></a>
 
 ## 4. Dữ liệu và tiền xử lý
 
-Nguồn triển khai: [src/params.py](src/params.py), [experiments/build_data.py](experiments/build_data.py).
+Nguồn triển khai: [src/params.py](smart-retail-layout/src/params.py), [experiments/build_data.py](smart-retail-layout/experiments/build_data.py).
 
 ### 4.1. Dữ liệu processed có sẵn
 
@@ -176,7 +319,7 @@ Hai mức biểu diễn dùng cùng nguồn đơn hàng:
 | group | 40 nhóm theo mapping Việt Nam | 40 × 40 | CSR 200.000 × 40 |
 | aisle | 132 aisle sau khi bỏ other/missing | 132 × 132 | CSR 200.000 × 132 |
 
-[Manifest group](data/processed/group/manifest.json) và [manifest aisle](data/processed/aisle/manifest.json) ghi **3.214.236 đơn** dùng để ước lượng tham số. 200.000 giỏ là mẫu cho mô phỏng, không phải toàn bộ dữ liệu dùng tính w và f. Hàm compute mặc định chọn tối đa 200.000 giỏ không hoàn lại với seed=0.
+[Manifest group](smart-retail-layout/data/processed/group/manifest.json) và [manifest aisle](smart-retail-layout/data/processed/aisle/manifest.json) ghi **3.214.236 đơn** dùng để ước lượng tham số. 200.000 giỏ là mẫu cho mô phỏng, không phải toàn bộ dữ liệu dùng tính w và f. Hàm compute mặc định chọn tối đa 200.000 giỏ không hoàn lại với seed=0.
 
 | Artifact trong `data/processed/<level>/` | Nội dung và định dạng |
 |---|---|
@@ -201,7 +344,7 @@ Raw Instacart không nằm trong Git. Đặt trực tiếp các tệp sau vào d
 | order_products__prior.csv | order_id, product_id, reordered |
 | aisles.csv | aisle_id, aisle |
 
-Mapping tại [data/mappings/groups_vn.csv](data/mappings/groups_vn.csv) gồm group_id, name, aisle_ids phân cách bằng dấu chấm phẩy, needs_cold, value_v và dwell_level. Hai aisle 6 và 100 bị loại; aisle còn lại phải có mapping.
+Mapping tại [data/mappings/groups_vn.csv](smart-retail-layout/data/mappings/groups_vn.csv) gồm group_id, name, aisle_ids phân cách bằng dấu chấm phẩy, needs_cold, value_v và dwell_level. Hai aisle 6 và 100 bị loại; aisle còn lại phải có mapping.
 
 Có thể tải dataset bằng công cụ kagglehub đã có trong requirements:
 
@@ -283,7 +426,7 @@ Trước khi upload, kiểm tra ID không trùng, liên kết category đầy đ
 
 ## 5. Mặt bằng, slot và đồ thị
 
-Nguồn triển khai: [src/floorplan.py](src/floorplan.py), [src/layouts.py](src/layouts.py).
+Nguồn triển khai: [src/floorplan.py](smart-retail-layout/src/floorplan.py), [src/layouts.py](smart-retail-layout/src/layouts.py).
 
 ### 5.1. Lưới mặt bằng
 
@@ -298,7 +441,7 @@ Nguồn triển khai: [src/floorplan.py](src/floorplan.py), [src/layouts.py](src
 
 Mỗi ô có cạnh 1 m. Các dòng phải cùng chiều dài; cần có E, C và các đoạn kệ tiếp cận được. Đồ thị nối ô đi được theo bốn hướng, mỗi cạnh dài 1 m. Khoảng cách Dijkstra được tính trên đồ thị này, không phải khoảng cách Euclid giữa các kệ.
 
-Chín lưới chuẩn nằm tại [data/floorplans](data/floorplans), gồm grid/racetrack/free × small/medium/large; [case_minimart.txt](data/floorplans/case_minimart.txt) là tình huống siêu thị mini. Số nhóm và slot khi dựng instance mặc định:
+Chín lưới chuẩn nằm tại [data/floorplans](smart-retail-layout/data/floorplans), gồm grid/racetrack/free × small/medium/large; [case_minimart.txt](smart-retail-layout/data/floorplans/case_minimart.txt) là tình huống siêu thị mini. Số nhóm và slot khi dựng instance mặc định:
 
 | Kiểu | small: n / m | medium: n / m | large: n / m |
 |---|---|---|---|
@@ -337,7 +480,7 @@ make_instance gọi assign_cold để bố trí đủ slot lạnh, mặc định
 
 ## 6. Instance, biểu diễn nghiệm và ràng buộc
 
-Nguồn triển khai: [src/instance.py](src/instance.py), [src/fastops.py](src/fastops.py).
+Nguồn triển khai: [src/instance.py](smart-retail-layout/src/instance.py), [src/fastops.py](smart-retail-layout/src/fastops.py).
 
 Instance chọn n loại phổ biến nhất theo f, giữ thứ tự metadata của các loại đã chọn, lấy các cột tương ứng của giỏ CSR và bỏ giỏ trở thành rỗng. Nếu m>n, W/f/p/v được đệm bằng 0 cho m−n loại rỗng.
 
@@ -382,7 +525,7 @@ violations trả compat, separate, relocation_excess; feasible kiểm tra tổng
 
 ## 7. Mô hình toán và chuẩn hóa
 
-Nguồn triển khai: [src/instance.py](src/instance.py), [src/solvers.py](src/solvers.py).
+Nguồn triển khai: [src/instance.py](smart-retail-layout/src/instance.py), [src/solvers.py](smart-retail-layout/src/solvers.py).
 
 ### 7.1. Mục tiêu tiện lợi Z1 của QAP
 
@@ -440,7 +583,7 @@ Hungarian tối ưu phần Z2 tuyến tính với ma trận allowed; nó chưa t
 
 ### 8.1. ILP: basic và RLT
 
-[src/model_ilp.py](src/model_ilp.py) dùng PuLP với HiGHS mặc định, hoặc CBC. x_ik∈{0,1} biểu diễn loại i ở slot k; chỉ tạo x cho cặp tương thích. Biến y_ijkl∈[0,1] tuyến tính hóa tích x_ik x_jl cho i<j, k≠l và w_ij>0.
+[src/model_ilp.py](smart-retail-layout/src/model_ilp.py) dùng PuLP với HiGHS mặc định, hoặc CBC. x_ik∈{0,1} biểu diễn loại i ở slot k; chỉ tạo x cho cặp tương thích. Biến y_ijkl∈[0,1] tuyến tính hóa tích x_ik x_jl cho i<j, k≠l và w_ij>0.
 
 | Dạng | Ràng buộc liên kết chính |
 |---|---|
@@ -453,7 +596,7 @@ Các mode: z1, z2, weighted và eps. eps giải min Z1 với Z2≥epsilon. Kết
 
 ### 8.2. Genetic Algorithm
 
-[src/ga.py](src/ga.py) thực hiện:
+[src/ga.py](smart-retail-layout/src/ga.py) thực hiện:
 
 1. Khởi tạo khoảng 90% ngẫu nhiên, 10% tham lam.
 2. Chọn bố mẹ bằng tournament.
@@ -477,7 +620,7 @@ Các mode: z1, z2, weighted và eps. eps giải min Z1 với Z2≥epsilon. Kết
 
 Fitness gồm mục tiêu và rho×(vi phạm tương thích + số cặp tách xa vi phạm + số loại dời vượt R). Repair chủ yếu bảo đảm compatibility khi bài toán gán tương thích có nghiệm; separation/R vẫn dùng penalty. **Không giả định mọi nghiệm GA đều khả thi.** Khi báo cáo mục tiêu thuần, tính lại bằng inst.z1/z2/z; fitness không phải cùng đại lượng đó.
 
-Với a=perm[r], b=perm[s], W/D đối xứng, kernel [src/fastops.py](src/fastops.py) dùng:
+Với a=perm[r], b=perm[s], W/D đối xứng, kernel [src/fastops.py](smart-retail-layout/src/fastops.py) dùng:
 
 $$
 \Delta =
@@ -489,7 +632,7 @@ L và c_q do Instance.weighted tạo. Delta của phần mục tiêu tính O(m),
 
 ### 8.3. NSGA-II và tập Pareto
 
-[src/moo.py](src/moo.py) dùng pymoo NSGA2 với OrderCrossover, InversionMutation và CompatRepair. Hai mục tiêu cực tiểu là F1/F2; vi phạm được cộng penalty vào cả hai. ls_prob>0 bật biến thể lai, local search theo alpha ngẫu nhiên.
+[src/moo.py](smart-retail-layout/src/moo.py) dùng pymoo NSGA2 với OrderCrossover, InversionMutation và CompatRepair. Hai mục tiêu cực tiểu là F1/F2; vi phạm được cộng penalty vào cả hai. ls_prob>0 bật biến thể lai, local search theo alpha ngẫu nhiên.
 
 front_from_perms lọc khả thi, loại nghiệm bị trội, bỏ trùng giá trị mục tiêu và sắp theo Z1. Kết quả gồm perms, Z (Z1/Z2) và F (F1/F2). Một điểm trội điểm khác nếu không tệ hơn ở mọi mục tiêu và tốt hơn ít nhất một mục tiêu.
 
@@ -499,7 +642,7 @@ Tập Pareto có thể rỗng khi không tìm được nghiệm khả thi. Các 
 
 ### 8.4. Các phương pháp đối chứng
 
-| Phương pháp tại [src/baselines.py](src/baselines.py) | Cách tìm nghiệm |
+| Phương pháp tại [src/baselines.py](smart-retail-layout/src/baselines.py) | Cách tìm nghiệm |
 |---|---|
 | Random | Lấy nhiều hoán vị tương thích, giữ nghiệm có fitness tốt nhất |
 | Greedy | Gán loại phổ biến vào slot có e cao trong từng lớp lạnh/thường |
@@ -513,7 +656,7 @@ Ngân sách E3 là thời gian tìm kiếm; biên dịch, chuẩn bị, bước 
 
 ## 9. Mô phỏng khách hàng
 
-Nguồn triển khai: [src/simulate.py](src/simulate.py).
+Nguồn triển khai: [src/simulate.py](smart-retail-layout/src/simulate.py).
 
 ### 9.1. Một chuyến mua sắm
 
@@ -574,7 +717,7 @@ $$
 
 ## 10. Pipeline hiệu chỉnh, chọn và đánh giá
 
-Nguồn triển khai: [src/pipeline.py](src/pipeline.py), [src/routing.py](src/routing.py).
+Nguồn triển khai: [src/pipeline.py](smart-retail-layout/src/pipeline.py), [src/routing.py](smart-retail-layout/src/routing.py).
 
 ### 10.1. Hiệu chỉnh Model
 
@@ -709,7 +852,7 @@ PipelineResult còn cung cấp base, cal, calib, validity, front, screen, ref, p
 
 ## 11. Dashboard Streamlit
 
-Nguồn triển khai: [app/streamlit_app.py](app/streamlit_app.py). Khởi chạy bằng python -m streamlit run app/streamlit_app.py.
+Nguồn triển khai: [app/streamlit_app.py](smart-retail-layout/app/streamlit_app.py). Khởi chạy bằng python -m streamlit run app/streamlit_app.py.
 
 Sidebar chọn mặt bằng mẫu/upload, nguồn giỏ hàng, số loại phổ biến, ràng buộc tách xa/cố định, R và số khách mô phỏng. Mặt bằng large với dữ liệu group được chuyển sang mức aisle trong giao diện.
 
@@ -731,20 +874,20 @@ Kết quả trong session được gắn với key cấu hình. Tuy nhiên key c
 
 ## 12. Thí nghiệm E1–E7
 
-Nguồn triển khai: [experiments/config.yaml](experiments/config.yaml), [experiments/common.py](experiments/common.py), [experiments/run_all.py](experiments/run_all.py).
+Nguồn triển khai: [experiments/config.yaml](smart-retail-layout/experiments/config.yaml), [experiments/common.py](smart-retail-layout/experiments/common.py), [experiments/run_all.py](smart-retail-layout/experiments/run_all.py).
 
 ### 12.1. Mục tiêu từng thí nghiệm
 
 | Mã / script | Câu hỏi | Đầu ra tiêu biểu |
 |---|---|---|
-| E1 — [e1_qaplib.py](experiments/e1_qaplib.py) | GA khớp lời giải chuẩn QAPLIB đến mức nào? | runs.csv, summary.csv |
-| E2 — [e2_ga_vs_ilp.py](experiments/e2_ga_vs_ilp.py) | GA so với ILP; basic so với RLT ở quy mô nhỏ | ilp.csv, runs.csv, summary.csv |
-| E3 — [e3_heuristics.py](experiments/e3_heuristics.py) | GA/SA/Tabu so với Greedy/Random/Hiện trạng | deterministic.csv, runs.csv, summary.csv, wilcoxon.csv, nemenyi.csv |
-| E4 — [e4_pareto.py](experiments/e4_pareto.py) | NSGA-II thuần/lai, epsilon-constraint và quét alpha | runs.csv, summary.csv; hypervolume/Pareto |
-| E5 — [e5_simulation.py](experiments/e5_simulation.py) | Toàn pipeline trên 9 mặt bằng + minimart; model so với route, 3 hồ sơ và các cách chọn | model_validation.csv, screen.csv, final_runs.csv, final_summary.csv, plans.npz |
-| E6 — [e6_sensitivity.py](experiments/e6_sensitivity.py) | Độ nhạy lambda/p, nhiễu p, cách đi, tốc độ; hiệu quả theo R | runs.csv, summary.csv, rank_stability.csv, R_curve.csv, R_curve_route.csv |
-| E7 — [e7_ablation.py](experiments/e7_ablation.py) | Bóc tách exposure, p/q, lặp cập nhật exposure, route và local search GA | ls_runs.csv, exposure_variants.csv, exposure_iterations.csv, exposure_dependence.csv |
-| [extra_stats.py](experiments/extra_stats.py) | Cận dưới E2; so cặp E3 bằng Mann–Whitney, Holm và A12 | E2/lower_bound.csv, E3/pairwise_holm_a12.csv |
+| E1 — [e1_qaplib.py](smart-retail-layout/experiments/e1_qaplib.py) | GA khớp lời giải chuẩn QAPLIB đến mức nào? | runs.csv, summary.csv |
+| E2 — [e2_ga_vs_ilp.py](smart-retail-layout/experiments/e2_ga_vs_ilp.py) | GA so với ILP; basic so với RLT ở quy mô nhỏ | ilp.csv, runs.csv, summary.csv |
+| E3 — [e3_heuristics.py](smart-retail-layout/experiments/e3_heuristics.py) | GA/SA/Tabu so với Greedy/Random/Hiện trạng | deterministic.csv, runs.csv, summary.csv, wilcoxon.csv, nemenyi.csv |
+| E4 — [e4_pareto.py](smart-retail-layout/experiments/e4_pareto.py) | NSGA-II thuần/lai, epsilon-constraint và quét alpha | runs.csv, summary.csv; hypervolume/Pareto |
+| E5 — [e5_simulation.py](smart-retail-layout/experiments/e5_simulation.py) | Toàn pipeline trên 9 mặt bằng + minimart; model so với route, 3 hồ sơ và các cách chọn | model_validation.csv, screen.csv, final_runs.csv, final_summary.csv, plans.npz |
+| E6 — [e6_sensitivity.py](smart-retail-layout/experiments/e6_sensitivity.py) | Độ nhạy lambda/p, nhiễu p, cách đi, tốc độ; hiệu quả theo R | runs.csv, summary.csv, rank_stability.csv, R_curve.csv, R_curve_route.csv |
+| E7 — [e7_ablation.py](smart-retail-layout/experiments/e7_ablation.py) | Bóc tách exposure, p/q, lặp cập nhật exposure, route và local search GA | ls_runs.csv, exposure_variants.csv, exposure_iterations.csv, exposure_dependence.csv |
+| [extra_stats.py](smart-retail-layout/experiments/extra_stats.py) | Cận dưới E2; so cặp E3 bằng Mann–Whitney, Holm và A12 | E2/lower_bound.csv, E3/pairwise_holm_a12.csv |
 
 Các artifact là đầu ra theo code path tương ứng; không phải mọi cấu hình quick đều sinh đầy đủ mọi bảng phụ. E3 có Wilcoxon, Friedman/Nemenyi; extra_stats áp dụng Holm cho họ so cặp trong từng instance. A12>0.5 nghĩa là thuật toán a có xu hướng đạt Z thấp hơn b. Điều này không áp dụng tự động cho mọi p_value E5.
 
@@ -795,12 +938,12 @@ run_all ghi log mã trả về rc của từng subprocess nhưng chưa biến rc
 
 | Đường dẫn | Vai trò |
 |---|---|
-| [results/E1](results/E1)…[results/E7](results/E7) | Dữ liệu thô, bảng tổng hợp và run_config.yaml từng thí nghiệm |
-| [results/figures](results/figures) | Hình Pareto, mặt bằng, heatmap và thống kê |
+| [results/E1](smart-retail-layout/results/E1)…[results/E7](smart-retail-layout/results/E7) | Dữ liệu thô, bảng tổng hợp và run_config.yaml từng thí nghiệm |
+| [results/figures](smart-retail-layout/results/figures) | Hình Pareto, mặt bằng, heatmap và thống kê |
 | results/run_all.log | Log nối thêm: tên module, rc, thời gian |
 | `results/<module>.out.txt` | Stdout/stderr từng module; có thể bị ghi đè |
-| [results/payoff_cache.json](results/payoff_cache.json) | Mốc chuẩn hóa dùng chung các lần chạy |
-| [results/_v1_model_goc](results/_v1_model_goc), [results/_v2_hieu_chinh](results/_v2_hieu_chinh) | Kết quả lưu của các phiên bản mô hình trước |
+| [results/payoff_cache.json](smart-retail-layout/results/payoff_cache.json) | Mốc chuẩn hóa dùng chung các lần chạy |
+| [results/_v1_model_goc](smart-retail-layout/results/_v1_model_goc), [results/_v2_hieu_chinh](smart-retail-layout/results/_v2_hieu_chinh) | Kết quả lưu của các phiên bản mô hình trước |
 
 Có đủ thư mục E1–E7 không chứng minh một chiến dịch hoàn chỉnh đã được chạy lại trên HEAD hiện tại. Đối chiếu số instance, seed, rep, profile và log trước khi dùng các bảng cho báo cáo.
 
@@ -830,7 +973,7 @@ python -m pytest -q
 python -m experiments.run_all --help
 ~~~
 
-[tests/test_core.py](tests/test_core.py) kiểm tra:
+[tests/test_core.py](smart-retail-layout/tests/test_core.py) kiểm tra:
 
 - Khoảng cách metric, tách slot và gán vùng lạnh.
 - Delta swap so với tính lại mục tiêu; local search không làm xấu fitness.
@@ -840,7 +983,7 @@ python -m experiments.run_all --help
 - RouteModel so với mô phỏng trong dung sai; route_search giữ R từ điểm xuất phát khả thi.
 - Giá trị QAPLIB và tính hợp lệ của OX/PMX.
 
-Baseline f4ab327 được kiểm tra ngày 2026-10-04: **18 tests passed**, Python 3.12.10/Windows, pip check sạch. Số test là ảnh chụp tại baseline; chạy lại để kiểm tra checkout đang dùng. Tests không chứng minh campaign E1–E7 đầy đủ hoặc mô hình đúng với cửa hàng thực.
+**Lịch sử v3**, baseline f4ab327 được kiểm tra ngày 2026-10-04: **18 tests passed**, Python 3.12.10/Windows, pip check sạch. Số test là ảnh chụp tại baseline; chạy lại để kiểm tra checkout đang dùng. Tests không chứng minh campaign E1–E7 đầy đủ hoặc mô hình đúng với cửa hàng thực.
 
 ### 14.2. Lỗi thường gặp
 
@@ -858,20 +1001,16 @@ Baseline f4ab327 được kiểm tra ngày 2026-10-04: **18 tests passed**, Pyth
 
 <a id="gioi-han"></a>
 
-## 15. Giới hạn hiện tại
+## 15. Giới hạn của luồng v3 cũ
 
 - **Nguồn dữ liệu:** Instacart là đơn online; đồng mua không trực tiếp mô tả luồng khách tại cửa hàng. p từ reorder, v và dwell là giả định/đầu vào, cần đối chiếu dữ liệu thực.
-- **Sức chứa:** Một loại thật dùng một slot; n_slots chưa điều khiển phân bổ nhiều slot. Chưa mô hình hóa SKU, số lượng, mặt trưng bày và sức chứa tồn kho chi tiết.
+- **Sức chứa:** Một loại thật dùng một slot; n_slots chưa điều khiển phân bổ nhiều slot. Luồng v3 này chưa mô hình hóa SKU, số lượng, mặt trưng bày và sức chứa tồn kho chi tiết; các module SSAP v4 riêng đã có những chức năng này.
 - **Hình học:** Lưới 1 m, bốn hướng, cửa vào đầu tiên và thu ngân gần nhất. Gán vùng lạnh tự động có thể thay lưới upload.
 - **Khả thi:** GA dùng penalty; repair và random layouts chủ yếu xử lý compatibility. Hiện trạng/fixed/separation có thể xung đột. Pipeline có thể thêm hiện trạng vi phạm vào screening; dashboard chưa có chốt đầy đủ ngăn xuất mọi phương án vi phạm.
 - **Mô hình đại diện:** Z1 QAP không phải độ dài chuyến. Exposure QAP cố định theo baseline; fallback traffic chưa luôn nằm [0,1]. Payoff heuristic chưa luôn khả thi và không phải cận tối ưu.
 - **Theo tuyến đi:** Mẫu giỏ hữu hạn, NN+2-opt và kỳ vọng dwell xấp xỉ; local search lai vẫn dùng kernel QAP. RouteModel không thay toàn bộ Simulator.
-- **Mô phỏng/thống kê:** Không có né va chạm/hàng chờ động đầy đủ; ùn tắc là xấp xỉ. Final dùng seed riêng theo mặc định, nhưng cải thiện trên screen không bảo đảm trên final. Holm không áp dụng tự động cho mọi so sánh.
+- **Mô phỏng/thống kê:** Simulator v3 không có né va chạm/hàng chờ động đầy đủ; ùn tắc là xấp xỉ. Bộ mô phỏng hai luồng v4 riêng đã có thời gian, sức chứa và hàng chờ. Final dùng seed riêng theo mặc định, nhưng cải thiện trên screen không bảo đảm trên final. Holm không áp dụng tự động cho mọi so sánh.
 - **Dời hàng:** R chỉ đếm nhóm đổi slot. Chuỗi dời tham lam chưa kiểm tra mọi ràng buộc ở trạng thái trung gian, chưa bảo đảm hoàn thành hoặc tối ưu chi phí vận hành.
 - **Vận hành/tái lập:** Cache chưa nhận diện đầy đủ nội dung đầu vào; run_all chưa tổng hợp lỗi subprocess thành thất bại chung. Kết quả cũ có thể thuộc nhiều lần chạy/cấu hình.
 
 Trước khi áp dụng cho cửa hàng, đo/hiệu chỉnh p, v, dwell và lambda; đối chiếu hình học/vùng lạnh; kiểm tra current và phương án bằng feasible; đánh giá độ nhạy và KPI trên dữ liệu độc lập. Các yêu cầu vận hành chưa mô hình hóa phải được người quản lý đánh giá bổ sung.
-
-<a id="quy-trinh-ai"></a>
-
-
